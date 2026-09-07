@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Principal | Clínica Odontológica</title>
+    <link rel="stylesheet" href="painel.css">
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar" id="sidebar">
+        <div class="marca">
+            <div class="logo">🦷</div>
+            <div>
+                <h2>Clínica</h2>
+                <span>Gestão e Agendamento</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+            <button class="menu-item ativo" data-titulo="Dashboard" data-url="dashboard.html">📊 Dashboard</button>
+
+            <div class="menu-titulo">GESTÃO</div>
+
+            <button class="menu-item" data-titulo="Pacientes" data-url="index.html">👤 Pacientes</button>
+            <button class="menu-item" data-titulo="Agenda" data-url="agenda.html">📅 Agenda</button>
+            <button class="menu-item" data-titulo="Profissionais" data-url="dentistas.html">🦷 Profissionais</button>
+            <button class="menu-item" data-titulo="Retornos" data-url="retornos.html">🔄 Retornos</button>
+
+            <div class="menu-titulo">CONTROLE</div>
+
+            
+            <button class="menu-item" data-titulo="Financeiro" data-url="financeiro.html">💰 Financeiro</button>
+
+
+
+            <div class="menu-titulo">SISTEMA</div>
+
+            <button class="menu-item" data-titulo="Usuários" data-url="usuarios.html">👥 Usuários</button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="menu-item sair" id="btnSair">🚪 Sair</button>
+        </div>
+    </aside>
+
+    <main class="principal">
+        <header class="topbar">
+            <div class="topbar-esquerda">
+                <button class="btn-menu" id="btnMenu">☰</button>
+                <div>
+                    <h1 id="tituloPagina">Início</h1>
+                    <p id="subtituloPagina">Painel central do sistema</p>
+                </div>
+            </div>
+
+            <div class="usuario">
+                <div class="avatar">👤</div>
+                <div>
+                    <strong>Usuário</strong>
+                    <small>Acesso ao sistema</small>
+                </div>
+            </div>
+        </header>
+
+        <section class="conteudo" id="conteudo">
+            <div class="boas-vindas">
+                <div class="icone-principal">🦷</div>
+                <div>
+                    <h2>Bem-vindo ao Sistema</h2>
+                    <p>Utilize o menu lateral para acessar todas as funcionalidades em um único painel.</p>
+                </div>
+            </div>
+
+            <div class="atalhos">
+                <button class="atalho" data-url="index.html" data-titulo="Pacientes">
+                    👤<strong>Pacientes</strong><small>Cadastros e consultas</small>
+                </button>
+
+                <button class="atalho" data-url="agenda.html" data-titulo="Agenda">
+                    📅<strong>Agenda</strong><small>Agendamentos</small>
+                </button>
+
+                <button class="atalho" data-url="retornos.html" data-titulo="Retornos">
+                    🔄<strong>Retornos</strong><small>Acompanhe retornos</small>
+                </button>
+
+                <button class="atalho" data-url="dashboard.html" data-titulo="Dashboard">
+                    📊<strong>Dashboard</strong><small>Indicadores</small>
+                </button>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<script src="auth-guard.js"></script>
+<script src="painel.js"></script>
+</body>
+</html>

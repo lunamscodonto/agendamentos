@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>MSC - Odonto | Dentistas</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <style>
+        /* =====================================================
+           DENTISTAS — TELA INTEGRADA AO FUNDO AZUL
+           Mantém todas as funções do dentistas.js
+        ===================================================== */
+
+        body {
+            background: #5aa9e6 !important;
+        }
+
+        main.container {
+            background: transparent !important;
+        }
+
+        main.container .card {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        main.container .card-header,
+        main.container .lista-header {
+            background: transparent !important;
+        }
+
+        main.container .form-grid,
+        main.container .campo,
+        main.container .acoes,
+        main.container .lista-pacientes {
+            background: transparent !important;
+        }
+
+        main.container input,
+        main.container textarea {
+            background: rgba(255,255,255,0.08) !important;
+            color: #123b63 !important;
+            border-color: rgba(255,255,255,0.55) !important;
+        }
+
+        main.container input::placeholder,
+        main.container textarea::placeholder {
+            color: rgba(18,59,99,0.72) !important;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <header class="topo">
+
+        <div>
+            <h1>🦷 MSC - Odonto</h1>
+            <p>Cadastro de Dentistas</p>
+        </div>
+
+    </header>
+
+
+    <main class="container">
+
+<div class="marca-msc-odonto">
+    <div class="marca-logo">🦷</div>
+    <div>
+        <div class="marca-nome">MSC - Odonto</div>
+        <div class="marca-subtitulo">Gestão Odontológica</div>
+    </div>
+</div>
+
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>Novo Dentista</h2>
+
+                <p>
+                    Cadastre os profissionais da clínica.
+                </p>
+
+            </div>
+
+
+            <form id="formDentista">
+
+                <div class="form-grid">
+
+                    <div class="campo campo-grande">
+
+                        <label for="nome">
+                            Nome completo *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="nome"
+                            placeholder="Nome do dentista"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="campo">
+
+                        <label for="cro">
+                            CRO
+                        </label>
+
+                        <input
+                            type="text"
+                            id="cro"
+                            placeholder="Ex.: CRO-RJ 12345"
+                        >
+
+                    </div>
+
+
+                    <div class="campo">
+
+                        <label for="especialidade">
+                            Especialidade
+                        </label>
+
+                        <input
+                            type="text"
+                            id="especialidade"
+                            placeholder="Ex.: Ortodontia"
+                        >
+
+                    </div>
+
+
+                    <div class="campo">
+
+                        <label for="telefone">
+                            Telefone
+                        </label>
+
+                        <input
+                            type="text"
+                            id="telefone"
+                            placeholder="(00) 00000-0000"
+                        >
+
+                    </div>
+
+
+                    <div class="campo">
+
+                        <label for="email">
+                            E-mail
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="dentista@email.com"
+                        >
+
+                    </div>
+
+
+                    <div class="campo campo-completo">
+
+                        <label for="observacoes">
+                            Observações
+                        </label>
+
+                        <textarea
+                            id="observacoes"
+                            rows="3"
+                            placeholder="Informações adicionais..."
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div class="acoes">
+
+                    <button
+                        type="button"
+                        class="btn-secundario"
+                        id="btnLimpar"
+                    >
+                        Limpar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn-principal"
+                    >
+                        💾 Salvar dentista
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <section class="card">
+
+            <div class="lista-header">
+
+                <div>
+
+                    <h2>
+                        Dentistas cadastrados
+                    </h2>
+
+                    <p id="contador">
+                        0 dentistas
+                    </p>
+
+                </div>
+
+
+                <input
+                    type="text"
+                    id="pesquisa"
+                    placeholder="🔎 Pesquisar dentista..."
+                >
+
+            </div>
+
+
+            <div
+                id="listaDentistas"
+                class="lista-pacientes"
+            >
+
+                <div class="estado-vazio">
+
+                    <div class="icone">
+                        🦷
+                    </div>
+
+                    <h3>
+                        Nenhum dentista cadastrado
+                    </h3>
+
+                    <p>
+                        Cadastre o primeiro profissional
+                        usando o formulário acima.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <div
+        id="mensagem"
+        class="mensagem"
+    ></div>
+
+
+    <script src="dentistas.js"></script>
+
+</body>
+
+</html>

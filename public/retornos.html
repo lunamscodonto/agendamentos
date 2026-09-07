@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retornos | Clínica Odontológica</title>
+
+<style>
+:root{
+    --azul-fundo:#5aa9e6;
+    --azul-escuro:#0b3558;
+    --azul-botao:#176fa8;
+    --gelo:#eaf7ff;
+    --gelo-suave:#cfeeff;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+    margin:0;
+    min-height:100%;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    background:var(--azul-fundo);
+    color:#123b63;
+}
+
+header{
+    min-height:105px;
+    padding:20px 38px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid rgba(255,255,255,.28);
+}
+
+header h1{
+    margin:0;
+    font-size:34px;
+    color:#123b63;
+}
+
+header p{
+    margin:4px 0 0;
+    font-size:17px;
+    color:#174a72;
+}
+
+.usuario{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.avatar{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+}
+
+.usuario strong{
+    display:block;
+    font-size:18px;
+}
+
+.usuario small{
+    font-size:14px;
+}
+
+.container{
+    padding:22px 30px 35px;
+}
+
+.painel{
+    border:1px solid rgba(255,255,255,.55);
+    border-radius:22px;
+    padding:28px;
+    background:transparent;
+}
+
+.painel h2{
+    margin:0 0 24px;
+    font-size:29px;
+    color:#123b63;
+}
+
+.form-card{
+    border:1px solid rgba(255,255,255,.45);
+    border-radius:18px;
+    padding:24px;
+    margin-bottom:25px;
+    background:rgba(255,255,255,.04);
+}
+
+.form-card h3{
+    margin:0 0 22px;
+    font-size:25px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+}
+
+.campo{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.campo label{
+    font-weight:700;
+}
+
+.campo input,
+.campo select,
+.campo textarea{
+    width:100%;
+    padding:14px 16px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.6);
+    background:rgba(255,255,255,.10);
+    color:#123b63;
+    font-size:16px;
+    outline:none;
+}
+
+.campo textarea{
+    min-height:105px;
+    resize:vertical;
+}
+
+.campo input::placeholder,
+.campo textarea::placeholder{
+    color:rgba(18,59,99,.68);
+}
+
+.campo-full{
+    grid-column:1/-1;
+}
+
+.acoes-form{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+button{
+    border:0;
+    border-radius:11px;
+    padding:13px 20px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.btn-principal{
+    background:var(--azul-botao);
+    color:#fff;
+}
+
+.btn-secundario{
+    background:#176fa8;
+    color:#fff;
+}
+
+.resumo{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.resumo-card{
+    border:1px solid rgba(255,255,255,.4);
+    border-radius:15px;
+    padding:15px;
+    background:rgba(255,255,255,.06);
+}
+
+.resumo-card strong{
+    display:block;
+    font-size:25px;
+    color:#123b63;
+}
+
+.resumo-card span{
+    font-weight:700;
+}
+
+.lista{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.item{
+    background:var(--azul-escuro);
+    border:1px solid rgba(255,255,255,.20);
+    border-radius:16px;
+    padding:20px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    min-height:120px;
+}
+
+/* FONTE GELO DOS RETORNOS SALVOS */
+.item strong{
+    color:var(--gelo) !important;
+    font-size:20px;
+}
+
+.item small{
+    color:var(--gelo-suave) !important;
+    font-size:16px;
+    line-height:1.8;
+}
+
+.item .acoes{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+    justify-content:flex-end;
+}
+
+.badge{
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:999px;
+    font-weight:700;
+    background:#bfe4ff;
+    color:#0b3558;
+}
+
+.realizar,
+.cancelar{
+    color:#fff;
+    border:0;
+    padding:12px 18px;
+}
+
+.realizar{background:#287fbd}
+.cancelar{background:#287fbd}
+
+.estado{
+    padding:30px;
+    text-align:center;
+    color:var(--gelo);
+    background:var(--azul-escuro);
+    border-radius:15px;
+}
+
+#mensagem{
+    display:none;
+}
+
+.voltar{
+    display:block;
+    width:max-content;
+    margin:25px auto 0;
+    text-decoration:none;
+    background:#0b5c97;
+    color:#fff;
+    padding:14px 25px;
+    border-radius:11px;
+    font-weight:700;
+}
+
+@media(max-width:850px){
+    .grid,.resumo{
+        grid-template-columns:1fr;
+    }
+
+    .item{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .item .acoes{
+        justify-content:flex-start;
+    }
+
+    header{
+        padding:18px 20px;
+    }
+
+    .container{
+        padding:15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>Retornos</h1>
+        <p>Controle de retornos</p>
+    </div>
+
+    <div class="usuario">
+        <div class="avatar">👤</div>
+        <div>
+            <strong>Usuário</strong>
+            <small>Acesso ao sistema</small>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <section class="painel">
+
+        <h2>📋 Retornos pendentes</h2>
+
+        <section class="form-card">
+            <h3>➕ Cadastrar retorno</h3>
+
+            <form id="formRetorno">
+
+                <div class="grid">
+
+                    <div class="campo">
+                        <label for="paciente_id">Paciente *</label>
+                        <select id="paciente_id" required>
+                            <option value="">Selecione o paciente</option>
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label for="dentista_id">Dentista responsável</label>
+                        <select id="dentista_id">
+                            <option value="">Não informado</option>
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label for="data_retorno">Data do retorno *</label>
+                        <input type="date" id="data_retorno" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="horario">Horário do retorno *</label>
+                        <input type="time" id="horario" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="motivo">Motivo</label>
+                        <input type="text" id="motivo" placeholder="Ex.: avaliação, revisão, continuidade">
+                    </div>
+
+                    <div class="campo campo-full">
+                        <label for="observacoes">Observações</label>
+                        <textarea id="observacoes" placeholder="Observações sobre o retorno"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="acoes-form">
+                    <button class="btn-principal" type="submit">💾 Salvar retorno</button>
+                    <button class="btn-secundario" type="button" id="btnLimpar">🧹 Limpar</button>
+                </div>
+
+                <div id="mensagem"></div>
+            </form>
+        </section>
+
+        <section>
+            <div class="resumo">
+                <div class="resumo-card">
+                    <strong id="totalAtrasados">0</strong>
+                    <span>🔴 Atrasados</span>
+                </div>
+                <div class="resumo-card">
+                    <strong id="totalHoje">0</strong>
+                    <span>🟢 Para hoje</span>
+                </div>
+                <div class="resumo-card">
+                    <strong id="totalProximos">0</strong>
+                    <span>🔵 Próximos</span>
+                </div>
+            </div>
+
+            <div id="listaRetornos" class="lista">
+                <div class="estado">⏳ Carregando retornos...</div>
+            </div>
+        </section>
+
+    </section>
+
+    <a class="voltar" href="painel.html">⬅ Voltar ao painel</a>
+</main>
+
+<script src="auth-guard.js"></script>
+<script src="retornos.js"></script>
+
+</body>
+</html>

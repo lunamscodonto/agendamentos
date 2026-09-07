@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Esqueci meu PIN</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f4f6f8;font-family:Arial;color:#27364a;padding:20px}
+.card{width:min(420px,100%);background:#fff;padding:28px;border-radius:18px;box-shadow:0 8px 28px rgba(0,0,0,.1)}h1{margin-top:0}
+label{display:block;font-weight:700;margin:16px 0 7px}input{width:100%;padding:14px;border:1px solid #cbd5e1;border-radius:9px;font-size:16px}
+button{width:100%;border:0;border-radius:9px;padding:14px;background:#176b42;color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:18px}.msg{display:none;margin-top:15px;padding:12px;border-radius:9px;font-weight:600}.erro{background:#fee2e2;color:#991b1b}.sucesso{background:#dcfce7;color:#166534}
+a{display:block;text-align:center;color:#176b42;font-weight:700;text-decoration:none;margin-top:18px}
+</style>
+</head>
+<body><section class="card">
+<h1>📧 Redefinir PIN</h1>
+<p>Informe seu e-mail. Enviaremos um link para criar um novo PIN.</p>
+<form id="formReset"><label for="email">E-mail</label><input id="email" type="email" required autocomplete="email"><button id="btn">Enviar link de redefinição</button><div id="msg" class="msg"></div></form>
+<a href="login.html">Voltar para o login</a>
+</section><script src="esqueci-pin.js"></script></body></html>

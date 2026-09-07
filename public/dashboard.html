@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Clínica Odontológica</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .topo {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 24px;
+        }
+
+        .topo h1 { margin: 0; }
+        .topo p { margin: 6px 0 0; opacity: .9; }
+
+        .container {
+            width: min(1150px, 94%);
+            margin: 24px auto;
+        }
+
+        .menu-principal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .menu-principal a {
+            text-decoration: none;
+            color: #374151;
+            background: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.08);
+        }
+
+        .menu-principal a.ativo {
+            background: #2563eb;
+            color: white;
+        }
+
+        .saudacao {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.07);
+        }
+
+        .saudacao h2 { margin: 0 0 6px; }
+
+        .indicadores {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .indicador {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.07);
+            border-left: 5px solid #2563eb;
+        }
+
+        .indicador .icone {
+            font-size: 28px;
+        }
+
+        .indicador strong {
+            display: block;
+            font-size: 28px;
+            margin: 8px 0 4px;
+        }
+
+        .indicador span {
+            color: #6b7280;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.25fr .75fr;
+            gap: 18px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.07);
+            margin-bottom: 18px;
+        }
+
+        .atendimentos-hoje-card { margin-bottom: 20px; }
+        .subtitulo-card { margin: -10px 0 18px; color: #6b7280; }
+        .dentista-grupo { margin-bottom: 22px; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+        .dentista-titulo { padding: 12px 16px; background: #eff6ff; color: #1e3a8a; font-weight: 700; display:flex; justify-content:space-between; align-items:center; }
+        .dentista-qtd { font-size: 12px; background:#dbeafe; padding:4px 9px; border-radius:20px; }
+        .dentista-lista { padding: 4px 12px; }
+        .consulta { margin: 8px 0; }
+        .sem-atendimentos { text-align:center; padding:35px 15px; color:#6b7280; }
+
+        .atendimentos-hoje-card { margin-bottom: 20px; }
+        .subtitulo-card { margin: -10px 0 18px; color: #6b7280; }
+        .dentista-grupo { margin-bottom: 22px; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+        .dentista-titulo { padding: 12px 16px; background: #eff6ff; color: #1e3a8a; font-weight: 700; display:flex; justify-content:space-between; align-items:center; }
+        .dentista-qtd { font-size: 12px; background:#dbeafe; padding:4px 9px; border-radius:20px; }
+        .dentista-lista { padding: 4px 12px; }
+        .sem-atendimentos { text-align:center; padding:35px 15px; color:#6b7280; }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        .consulta {
+            display: grid;
+            grid-template-columns: 75px 1fr auto;
+            gap: 12px;
+            align-items: center;
+            padding: 13px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .consulta:last-child {
+            border-bottom: 0;
+        }
+
+        .hora {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .consulta small {
+            color: #6b7280;
+        }
+
+        .dados {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .dados span {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .status {
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .agendado { background:#dbeafe; color:#1d4ed8; }
+        .confirmado { background:#ede9fe; color:#6d28d9; }
+        .atendido { background:#dcfce7; color:#15803d; }
+        .cancelado { background:#fee2e2; color:#b91c1c; }
+        .faltou { background:#e5e7eb; color:#4b5563; }
+
+        .profissional {
+            padding: 13px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .profissional:last-child {
+            border-bottom: 0;
+        }
+
+        .linha-profissional {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .barra {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .barra div {
+            height: 100%;
+            background: #2563eb;
+            width: 0;
+        }
+
+        .estado {
+            text-align: center;
+            color: #6b7280;
+            padding: 25px 10px;
+        }
+
+        .atualizar {
+            margin-top: 14px;
+            width: auto;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .erro {
+            color: #b91c1c;
+        }
+
+        .acoes-dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .botao-proximos {
+            margin-top: 0;
+            background: #0f766e;
+        }
+
+        .botao-proximos:hover {
+            background: #115e59;
+        }
+
+        .proximos-card {
+            margin-top: 18px;
+        }
+
+        .data-proximo {
+            color: #6b7280;
+            margin: -8px 0 18px;
+        }
+
+        .confirmar-whatsapp {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: 0;
+            border-radius: 8px;
+            padding: 9px 12px;
+            background: #25d366;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .confirmar-whatsapp:hover {
+            background: #1ebe5d;
+        }
+
+        .confirmar-whatsapp:disabled {
+            background: #d1d5db;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .telefone-indisponivel {
+            font-size: 12px;
+            color: #b91c1c;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .confirmar-whatsapp {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .indicadores {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .indicadores {
+                grid-template-columns: 1fr;
+            }
+
+            .consulta {
+                grid-template-columns: 60px 1fr;
+            }
+
+            .consulta .status {
+                grid-column: 2;
+                justify-self: start;
+            }
+
+            .dentista-titulo {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="topo">
+    <h1>📊 Dashboard</h1>
+    <p>Visão geral da clínica</p>
+</header>
+
+<main class="container">
+
+    <nav class="menu-principal">
+        <a href="dashboard.html" class="ativo">📊 Dashboard</a>
+        <a href="agenda.html">📅 Agenda</a>
+        <a href="pacientes.html">👤 Pacientes</a>
+        <a href="dentistas.html">🦷 Dentistas</a>
+        <a href="procedimentos.html">💰 Procedimentos</a>
+        <a href="relatorios.html">📈 Relatórios</a>
+    </nav>
+
+    <section class="saudacao">
+        <h2>Olá! 👋</h2>
+        <p id="dataAtual">Carregando data...</p>
+        <div class="acoes-dashboard">
+            <button class="atualizar" id="btnAtualizar">
+                🔄 Atualizar dashboard
+            </button>
+            <button class="atualizar botao-proximos" id="btnProximos">
+                📅 Próximos atendimentos
+            </button>
+        </div>
+    </section>
+
+    <section class="indicadores">
+
+        <div class="indicador">
+            <div class="icone">👥</div>
+            <strong id="totalPacientes">0</strong>
+            <span>Pacientes ativos</span>
+        </div>
+
+        <div class="indicador">
+            <div class="icone">📅</div>
+            <strong id="totalHoje">0</strong>
+            <span>Agendamentos hoje</span>
+        </div>
+
+        <div class="indicador">
+            <div class="icone">🟢</div>
+            <strong id="totalAtendidos">0</strong>
+            <span>Atendidos hoje</span>
+        </div>
+
+    </section>
+
+    <section class="card atendimentos-hoje-card">
+        <h2>📅 Atendimentos de hoje</h2>
+        <p class="subtitulo-card">Pacientes organizados por dentista e horário</p>
+        <div id="atendimentosHoje" class="lista">
+            <div class="estado">⏳ Carregando...</div>
+        </div>
+    </section>
+
+    <section class="card proximos-card" id="cardProximos" hidden>
+        <h2>📅 Próximos atendimentos</h2>
+        <p class="data-proximo" id="dataProximo">Carregando...</p>
+        <div id="proximosAtendimentos">
+            <div class="estado">⏳ Carregando...</div>
+        </div>
+    </section>
+</main>
+
+<script src="dashboard.js"></script>
+
+</body>
+</html>

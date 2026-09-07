@@ -1,0 +1,414 @@
+
+/* style.css - Clínica Odontológica
+   Folha base do módulo de pacientes.
+*/
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%;font-family:Arial,Helvetica,sans-serif}
+body{background:#55a6ef;color:#173b5d;min-height:100vh;overflow-x:hidden}
+a{color:inherit}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.topo{width:100%;background:linear-gradient(135deg,#55a6ef,#4899e5);color:#173b5d;border-bottom:1px solid rgba(255,255,255,.28)}
+.container{width:100%;max-width:1400px;margin:0 auto;padding:28px}
+.card{background:#fff;border-radius:22px;box-shadow:0 10px 35px rgba(13,53,86,.12);padding:30px}
+.campo{display:flex;flex-direction:column;gap:7px}
+.campo label{font-weight:700;color:#173b5d}
+.campo input,.campo textarea,.campo select,
+input,textarea,select{border:1px solid #c9dce9;border-radius:10px;padding:12px 14px;outline:none;background:#fff;color:#173b5d}
+.campo input:focus,.campo textarea:focus,.campo select:focus,
+input:focus,textarea:focus,select:focus{border-color:#55a6ef;box-shadow:0 0 0 3px rgba(85,166,239,.18)}
+.btn-principal,.btn-secundario,.btn-paciente{border:0;border-radius:10px;padding:10px 15px;font-weight:700}
+.btn-principal{background:#1f73ad;color:#fff}
+.btn-principal:hover{background:#155b8f}
+.btn-secundario{background:#e9f1f7;color:#31546d}
+.btn-secundario:hover{background:#dbeaf4}
+.mensagem{display:none;position:fixed;right:24px;bottom:24px;z-index:3000;padding:14px 18px;border-radius:10px;background:#166534;color:#fff;font-weight:700;box-shadow:0 8px 25px rgba(0,0,0,.18)}
+.mensagem.erro{background:#b91c1c}
+.acoes{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.modal{position:fixed;inset:0;background:rgba(7,31,50,.55);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal.aberto{display:flex}
+.modal-conteudo{background:#fff;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;border-radius:18px;padding:25px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.btn-fechar{background:#e9f1f7;color:#31546d;border:0;border-radius:8px;padding:8px 12px;cursor:pointer}
+@media(max-width:800px){.container{padding:18px}.card{padding:20px}}
+
+
+
+        .menu-principal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .menu-principal a {
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            background: #e5e7eb;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .menu-principal a:hover {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .menu-principal a.ativo {
+            background: #2563eb;
+            color: white;
+        }
+
+        .barra-pacientes {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 25px;
+        }
+
+        .busca {
+            flex: 1;
+        }
+
+        .contador {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .lista-pacientes {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .paciente-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow:
+                0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .paciente-cabecalho {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 15px;
+        }
+
+        .avatar-paciente {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #dbeafe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .paciente-nome {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .paciente-status {
+            font-size: 11px;
+            margin-top: 3px;
+            color: #16a34a;
+        }
+
+        .dados-paciente {
+            color: #4b5563;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        .dados-paciente strong {
+            color: #374151;
+        }
+
+        .acoes-paciente {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn-paciente {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-historico {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .btn-editar {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn-excluir {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .estado-vazio {
+            text-align: center;
+            padding: 50px 20px;
+            color: #6b7280;
+            grid-column: 1 / -1;
+        }
+
+        .estado-vazio .icone {
+            font-size: 45px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 800px) {
+
+            .lista-pacientes {
+                grid-template-columns: 1fr;
+            }
+
+            .barra-pacientes {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+        }
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal.aberto {
+    display: flex;
+}
+
+.modal-conteudo {
+    background: white;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 14px;
+    padding: 25px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btn-fechar {
+    background: #e5e7eb;
+    color: #374151;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 12px;
+    cursor: pointer;
+}
+
+        /* ===== VISUAL PROFISSIONAL DO MÓDULO ===== */
+        body{background:#eef5fb!important;color:#173b5d}
+        .topo{background:linear-gradient(135deg,#0d3556,#155b8f)!important;color:#fff!important;border-radius:0 0 22px 22px;padding:28px 32px!important;box-shadow:0 8px 24px rgba(13,53,86,.18)}
+        .topo h1,.topo p{color:#fff!important}
+        .container{max-width:1400px!important;margin:0 auto!important;padding:28px!important}
+        .menu-principal{display:none!important}
+        .card{border:0!important;border-radius:22px!important;background:#fff!important;box-shadow:0 10px 35px rgba(13,53,86,.12)!important;padding:30px!important}
+        .card h2{font-size:28px!important;color:#173b5d!important;margin-top:0!important}
+        .card>p{color:#60788e!important;margin-bottom:26px!important}
+        .barra-pacientes{display:flex!important;gap:18px!important;align-items:flex-end!important;padding:20px!important;background:#f5f9fd!important;border:1px solid #dce8f2!important;border-radius:16px!important;margin-bottom:18px!important}
+        .busca{flex:1!important}
+        .campo label{display:block!important;font-weight:700!important;color:#173b5d!important;margin-bottom:8px!important}
+        .campo input{width:100%!important;min-height:48px!important;border:1px solid #c7d8e7!important;border-radius:11px!important;padding:0 15px!important;font-size:16px!important;background:#fff!important;outline:none!important}
+        .campo input:focus{border-color:#2582bd!important;box-shadow:0 0 0 3px rgba(37,130,189,.12)!important}
+        .ajuda-busca{display:block;color:#71869a;margin-top:6px;font-size:12px}
+        .acoes-consulta{display:flex;gap:10px}
+        .btn-principal,.btn-secundario{min-height:48px!important;padding:0 18px!important;border-radius:11px!important;border:0!important;font-weight:700!important;cursor:pointer!important}
+        .btn-principal{background:#176da5!important;color:#fff!important}
+        .btn-principal:hover{background:#125b8b!important}
+        .btn-secundario{background:#e8f0f6!important;color:#31546d!important}
+        .btn-secundario:hover{background:#dbe8f1!important}
+        .consulta-status{display:flex;align-items:center;gap:15px;padding:22px;background:linear-gradient(135deg,#f4f9fd,#eaf3fa);border:1px solid #d4e4ef;border-radius:16px;color:#365a73}
+        .status-icone{font-size:30px}
+        .consulta-status strong{display:block;font-size:16px;color:#173b5d;margin-bottom:4px}
+        .consulta-status p{margin:0;color:#60788e;font-size:14px}
+        .contador{font-weight:700;color:#4b687e;margin:20px 0 14px!important}
+        .lista-pacientes{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px!important}
+        .paciente-card{border:1px solid #dce7ef!important;border-radius:18px!important;padding:22px!important;box-shadow:0 8px 22px rgba(13,53,86,.08)!important;transition:transform .18s,box-shadow .18s!important}
+        .paciente-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(13,53,86,.12)!important}
+        .paciente-nome{font-size:20px!important;color:#173b5d!important}
+        .dados-paciente{font-size:14px!important;color:#5a7184!important}
+        .acoes-paciente{gap:9px!important}
+        .btn-paciente{border-radius:9px!important;padding:9px 12px!important}
+        @media(max-width:800px){.barra-pacientes{flex-direction:column!important;align-items:stretch!important}.acoes-consulta{width:100%}.acoes-consulta button{flex:1}.lista-pacientes{grid-template-columns:1fr!important}}
+
+    
+/* ===== VISUAL PROFISSIONAL ===== */
+body{background:#eef5fb!important;color:#173b5d}
+.topo{background:linear-gradient(135deg,#0d3556,#155b8f)!important;color:#fff!important;border-radius:0 0 22px 22px;padding:28px 32px!important;box-shadow:0 8px 24px rgba(13,53,86,.18)}
+.topo h1,.topo p{color:#fff!important}
+.container{max-width:1400px!important;margin:0 auto!important;padding:28px!important}
+.menu-principal{display:none!important}
+.card{border:0!important;border-radius:22px!important;background:#fff!important;box-shadow:0 10px 35px rgba(13,53,86,.12)!important;padding:30px!important}
+.card h2{font-size:28px!important;color:#173b5d!important;margin-top:0!important}
+.card>p{color:#60788e!important;margin-bottom:26px!important}
+.barra-pacientes{display:flex!important;gap:18px!important;align-items:flex-end!important;padding:20px!important;background:#f5f9fd!important;border:1px solid #dce8f2!important;border-radius:16px!important;margin-bottom:18px!important}
+.busca{flex:1!important}.campo label{display:block!important;font-weight:700!important;color:#173b5d!important;margin-bottom:8px!important}
+.campo input{width:100%!important;min-height:48px!important;border:1px solid #c7d8e7!important;border-radius:11px!important;padding:0 15px!important;font-size:16px!important;background:#fff!important;outline:none!important}
+.campo input:focus{border-color:#2582bd!important;box-shadow:0 0 0 3px rgba(37,130,189,.12)!important}
+.ajuda-busca{display:block;color:#71869a;margin-top:6px;font-size:12px}.acoes-consulta{display:flex;gap:10px}
+.btn-principal,.btn-secundario{min-height:48px!important;padding:0 18px!important;border-radius:11px!important;border:0!important;font-weight:700!important;cursor:pointer!important}
+.btn-principal{background:#176da5!important;color:#fff!important}.btn-principal:hover{background:#125b8b!important}.btn-secundario{background:#e8f0f6!important;color:#31546d!important}
+.consulta-status{display:flex;align-items:center;gap:15px;padding:22px;background:linear-gradient(135deg,#f4f9fd,#eaf3fa);border:1px solid #d4e4ef;border-radius:16px;color:#365a73}.status-icone{font-size:30px}
+.consulta-status strong{display:block;font-size:16px;color:#173b5d;margin-bottom:4px}.consulta-status p{margin:0;color:#60788e;font-size:14px}
+.contador{font-weight:700;color:#4b687e;margin:20px 0 14px!important}.lista-pacientes{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px!important}
+.paciente-card{border:1px solid #dce7ef!important;border-radius:18px!important;padding:22px!important;box-shadow:0 8px 22px rgba(13,53,86,.08)!important;transition:transform .18s,box-shadow .18s!important}.paciente-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(13,53,86,.12)!important}.paciente-nome{font-size:20px!important;color:#173b5d!important}.dados-paciente{font-size:14px!important;color:#5a7184!important}.btn-paciente{border-radius:9px!important;padding:9px 12px!important}
+@media(max-width:800px){.barra-pacientes{flex-direction:column!important;align-items:stretch!important}.acoes-consulta{width:100%}.acoes-consulta button{flex:1}.lista-pacientes{grid-template-columns:1fr!important}}
+
+    
+        /* ===== AJUSTES FINAIS DO MÓDULO DE PACIENTES ===== */
+        .card-pacientes{
+            background:#eaf5ff!important;
+            border:1px solid #c9e2f6!important;
+        }
+
+        .cabecalho-pacientes{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:24px;
+            margin-bottom:26px;
+        }
+
+        .titulo-pacientes{
+            display:flex;
+            align-items:center;
+            gap:16px;
+        }
+
+        .icone-titulo-pacientes{
+            width:58px;
+            height:58px;
+            border-radius:16px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#d6ebff;
+            font-size:30px;
+            flex:0 0 58px;
+        }
+
+        .cabecalho-pacientes h2{
+            margin:0 0 5px!important;
+            font-size:30px!important;
+            line-height:1.15;
+        }
+
+        .cabecalho-pacientes p{
+            margin:0!important;
+            color:#55718a!important;
+        }
+
+        .acoes-topo-pacientes{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            flex-shrink:0;
+        }
+
+        .btn-cadastrar-paciente,
+        .btn-atualizar-pacientes{
+            min-height:48px;
+            padding:0 18px;
+            border-radius:11px;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:7px;
+            font-weight:800;
+            font-size:14px;
+            text-decoration:none;
+            cursor:pointer;
+            transition:.18s ease;
+        }
+
+        .btn-cadastrar-paciente{
+            background:#176da5;
+            color:#fff;
+            border:1px solid #176da5;
+            box-shadow:0 5px 12px rgba(23,109,165,.18);
+        }
+
+        .btn-cadastrar-paciente:hover{
+            background:#125b8b;
+            transform:translateY(-1px);
+        }
+
+        .btn-atualizar-pacientes{
+            background:#fff;
+            color:#31546d;
+            border:1px solid #c9dce9;
+        }
+
+        .btn-atualizar-pacientes:hover{
+            background:#f3f9fd;
+        }
+
+        .barra-pacientes{
+            background:#f7fbff!important;
+            border-color:#cfe3f3!important;
+        }
+
+        .consulta-status{
+            background:#dff0ff!important;
+            border-color:#c3def2!important;
+        }
+
+        .paciente-card{
+            background:#f5faff!important;
+            border-color:#c9e0f1!important;
+        }
+
+        @media(max-width:900px){
+            .cabecalho-pacientes{
+                align-items:flex-start;
+                flex-direction:column;
+            }
+            .acoes-topo-pacientes{
+                width:100%;
+            }
+            .btn-cadastrar-paciente,
+            .btn-atualizar-pacientes{
+                flex:1;
+            }
+        }
+
+        @media(max-width:520px){
+            .titulo-pacientes{align-items:flex-start;}
+            .icone-titulo-pacientes{width:48px;height:48px;flex-basis:48px;font-size:24px;}
+            .cabecalho-pacientes h2{font-size:25px!important;}
+            .acoes-topo-pacientes{flex-direction:column;}
+            .btn-cadastrar-paciente,.btn-atualizar-pacientes{width:100%;}
+        }

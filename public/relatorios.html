@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - Clínica Odontológica</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .topo {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 24px;
+        }
+
+        .topo h1 { margin: 0; }
+        .topo p { margin: 6px 0 0; opacity: .9; }
+
+        .container {
+            width: min(1100px, 94%);
+            margin: 24px auto;
+        }
+
+        .menu-principal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .menu-principal a {
+            text-decoration: none;
+            color: #374151;
+            background: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.08);
+        }
+
+        .menu-principal a.ativo {
+            background: #2563eb;
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.07);
+            margin-bottom: 18px;
+        }
+
+        .filtros {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            align-items: end;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        input, select, button {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 15px;
+        }
+
+        button {
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        .resumo {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .indicador {
+            padding: 18px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+        }
+
+        .indicador strong {
+            display: block;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .tabela-wrap { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 13px 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f9fafb;
+        }
+
+        .valor {
+            font-weight: 700;
+        }
+
+        .estado {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+        }
+
+        .mensagem {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: #111827;
+            color: white;
+            padding: 13px 18px;
+            border-radius: 9px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .mensagem.erro { background: #dc2626; }
+
+        @media (max-width: 750px) {
+            .filtros, .resumo {
+                grid-template-columns: 1fr;
+            }
+
+            .container { width: 94%; }
+        }
+    
+        .btn-secundario {
+            background: #374151;
+        }
+
+        .btn-excel {
+            background: #15803d;
+        }
+
+        .periodo-relatorio {
+            margin: 8px 0 18px;
+            color: #6b7280;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .topo {
+                background: white;
+                color: black;
+                padding: 10px 0;
+            }
+
+            .menu-principal,
+            .filtros,
+            #btnGerar,
+            #btnImprimir,
+            #btnExcel,
+            #mensagem {
+                display: none !important;
+            }
+
+            .container {
+                width: 100%;
+                margin: 0;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+
+            table {
+                min-width: 0;
+            }
+
+            .periodo-relatorio {
+                display: block !important;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header class="topo">
+    <h1>📈 Relatórios</h1>
+    <p>Resumo financeiro por dentista e período</p>
+</header>
+
+<main class="container">
+
+    <nav class="menu-principal">
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="agenda.html">📅 Agenda</a>
+        <a href="pacientes.html">👤 Pacientes</a>
+        <a href="dentistas.html">🦷 Dentistas</a>
+        <a href="procedimentos.html">💰 Procedimentos</a>
+        <a href="relatorios.html" class="ativo">📈 Relatórios</a>
+    </nav>
+
+    <section class="card">
+        <h2>📊 Filtros do relatório</h2>
+
+        <div class="filtros">
+            <div>
+                <label for="dataInicio">Data inicial</label>
+                <input type="date" id="dataInicio">
+            </div>
+
+            <div>
+                <label for="dataFim">Data final</label>
+                <input type="date" id="dataFim">
+            </div>
+
+            <div>
+                <label for="dentistaId">Dentista</label>
+                <select id="dentistaId">
+                    <option value="">Todos os dentistas</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+            <button type="button" id="btnGerar">
+                🔎 Gerar relatório
+            </button>
+
+            <button type="button" id="btnImprimir" class="btn-secundario">
+                🖨️ Imprimir / PDF
+            </button>
+
+            <button type="button" id="btnExcel" class="btn-excel">
+                📊 Exportar Excel
+            </button>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>💰 Resumo geral</h2>
+
+        <div class="resumo">
+            <div class="indicador">
+                <strong id="totalAtendidos">0</strong>
+                <span>Atendimentos realizados</span>
+            </div>
+
+            <div class="indicador">
+                <strong id="totalRealizado">R$ 0,00</strong>
+                <span>Total realizado</span>
+            </div>
+
+            <div class="indicador">
+                <strong id="ticketMedio">R$ 0,00</strong>
+                <span>Ticket médio</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>🦷 Resultado por dentista</h2>
+
+        <div id="resultado">
+            <div class="estado">
+                Selecione o período e clique em <strong>Gerar relatório</strong>.
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<div id="mensagem" class="mensagem"></div>
+
+<script src="relatorios.js"></script>
+
+</body>
+</html>

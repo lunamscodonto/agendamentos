@@ -1,0 +1,377 @@
+
+*{box-sizing:border-box}
+
+:root{
+    --fundo:#55a6ef;
+    --fundo-secundario:#4899e5;
+    --lateral:#0d3556;
+    --lateral-2:#0a2d4b;
+    --branco:#ffffff;
+    --texto:#173b5d;
+    --suave:#d7eaff;
+    --borda:rgba(255,255,255,.22);
+    --ativo:#ffffff;
+    --ativo-texto:#173b5d;
+}
+
+html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:var(--fundo);
+    color:var(--texto);
+    overflow-x:hidden;
+}
+
+.app{
+    min-height:100vh;
+    display:flex;
+    width:100%;
+}
+
+/* ===== BARRA LATERAL ===== */
+.sidebar{
+    position:fixed;
+    top:0;
+    left:0;
+    bottom:0;
+    width:310px;
+    height:100vh;
+    background:var(--lateral);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    border-right:1px solid rgba(255,255,255,.2);
+    z-index:1000;
+    overflow:hidden;
+}
+
+.marca{
+    flex:0 0 auto;
+    min-height:125px;
+    padding:26px 24px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    border-bottom:1px solid rgba(255,255,255,.18);
+}
+
+.logo{
+    font-size:38px;
+    line-height:1;
+}
+
+.marca h2{
+    margin:0;
+    font-size:30px;
+    line-height:1.05;
+    color:#fff;
+}
+
+.marca span{
+    display:block;
+    margin-top:5px;
+    color:#fff;
+    font-size:18px;
+    line-height:1.15;
+}
+
+.menu{
+    flex:1 1 auto;
+    min-height:0;
+    padding:18px 12px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(255,255,255,.35) transparent;
+}
+
+.menu::-webkit-scrollbar{
+    width:7px;
+}
+
+.menu::-webkit-scrollbar-thumb{
+    background:rgba(255,255,255,.35);
+    border-radius:10px;
+}
+
+.menu-titulo{
+    margin:18px 10px 8px;
+    color:#a9d5f7;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:.3px;
+}
+
+.menu-item{
+    display:block;
+    width:100%;
+    min-height:52px;
+    padding:13px 16px;
+    margin:3px 0;
+    border:0;
+    border-radius:15px;
+    background:transparent;
+    color:#fff;
+    text-align:left;
+    font-size:18px;
+    font-weight:500;
+    cursor:pointer;
+    transition:background .18s, color .18s, transform .18s;
+}
+
+.menu-item:hover{
+    background:rgba(255,255,255,.10);
+    transform:translateX(2px);
+}
+
+.menu-item.ativo{
+    background:var(--ativo);
+    color:var(--ativo-texto);
+    font-weight:700;
+}
+
+.sidebar-footer{
+    flex:0 0 auto;
+    padding:12px;
+    border-top:1px solid rgba(255,255,255,.18);
+    background:var(--lateral-2);
+}
+
+.menu-item.sair{
+    color:#fff;
+}
+
+/* ===== ÁREA PRINCIPAL ===== */
+.principal{
+    margin-left:310px;
+    width:calc(100% - 310px);
+    min-height:100vh;
+    background:var(--fundo);
+}
+
+.topbar{
+    min-height:96px;
+    padding:18px 30px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    background:rgba(255,255,255,.10);
+    border-bottom:1px solid rgba(255,255,255,.22);
+}
+
+.topbar-esquerda{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.topbar h1{
+    margin:0;
+    color:#173b5d;
+    font-size:30px;
+}
+
+.topbar p{
+    margin:4px 0 0;
+    color:#214b70;
+    font-size:15px;
+}
+
+.usuario{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#173b5d;
+}
+
+.usuario small{
+    display:block;
+    color:#214b70;
+}
+
+.avatar{
+    width:44px;
+    height:44px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:#fff;
+}
+
+.btn-menu{
+    display:none;
+}
+
+.conteudo{
+    padding:28px;
+    min-height:calc(100vh - 96px);
+}
+
+.boas-vindas,
+.atalho{
+    background:rgba(255,255,255,.96);
+    border:1px solid rgba(255,255,255,.65);
+    border-radius:18px;
+    box-shadow:0 10px 28px rgba(15,54,85,.16);
+}
+
+.boas-vindas{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:25px;
+    margin-bottom:22px;
+}
+
+.boas-vindas h2{
+    margin:0 0 8px;
+}
+
+.boas-vindas p{
+    margin:0;
+}
+
+.icone-principal{
+    font-size:45px;
+}
+
+.atalhos{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:18px;
+}
+
+.atalho{
+    border:1px solid transparent;
+    padding:22px;
+    text-align:left;
+    cursor:pointer;
+    font-size:28px;
+    color:#173b5d;
+}
+
+.atalho:hover{
+    border-color:#2e83c8;
+}
+
+.atalho strong,
+.atalho small{
+    display:block;
+    margin-top:10px;
+}
+
+.atalho strong{
+    font-size:17px;
+}
+
+.atalho small{
+    font-size:13px;
+    color:#55708a;
+}
+
+/* módulos carregados dentro do painel */
+.modulo-frame{
+    display:block;
+    width:100%;
+    height:calc(100vh - 145px);
+    min-height:650px;
+    border:0;
+    border-radius:18px;
+    background:transparent;
+}
+
+.modulo-carregando,
+.modulo-erro{
+    min-height:250px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    color:#173b5d;
+    text-align:center;
+}
+
+.modulo-carregando .spinner{
+    font-size:34px;
+}
+
+/* overlay */
+.overlay{
+    display:none;
+}
+
+/* ===== RESPONSIVO ===== */
+@media(max-width:900px){
+    .sidebar{
+        width:285px;
+        transform:translateX(-100%);
+        transition:transform .25s ease;
+        box-shadow:8px 0 30px rgba(0,0,0,.25);
+    }
+
+    .sidebar.aberto{
+        transform:translateX(0);
+    }
+
+    .principal{
+        margin-left:0;
+        width:100%;
+    }
+
+    .btn-menu{
+        display:block;
+        border:0;
+        background:#fff;
+        color:#173b5d;
+        border-radius:9px;
+        padding:9px 12px;
+        font-size:20px;
+        cursor:pointer;
+    }
+
+    .overlay.ativo{
+        display:block;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.40);
+        z-index:900;
+    }
+
+    .topbar{
+        min-height:82px;
+        padding:14px 18px;
+    }
+
+    .conteudo{
+        padding:18px;
+    }
+
+    .atalhos{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+}
+
+@media(max-width:560px){
+    .marca h2{font-size:25px}
+    .marca span{font-size:16px}
+
+    .usuario{
+        display:none;
+    }
+
+    .atalhos{
+        grid-template-columns:1fr;
+    }
+
+    .boas-vindas{
+        align-items:flex-start;
+    }
+}

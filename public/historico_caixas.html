@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Histórico de Caixas</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#1f2937}
+header{background:linear-gradient(135deg,#14532d,#16a34a);color:#fff;padding:24px}
+.container{width:min(1150px,94%);margin:22px auto}
+.menu{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.menu a{background:#fff;color:#374151;text-decoration:none;padding:10px 14px;border-radius:8px}
+.menu a.ativo{background:#15803d;color:#fff}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:0 4px 15px #0001}
+.filtros{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+label{display:block;font-weight:bold;margin-bottom:6px}
+input,button{width:100%;min-height:42px;border:1px solid #d1d5db;border-radius:8px;padding:9px;font-size:15px}
+button{background:#15803d;color:#fff;border:0;font-weight:bold;cursor:pointer}
+button.sec{background:#374151}
+.resumo{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.ind{background:#f8fafc;border-radius:10px;padding:15px}
+.ind strong{display:block;font-size:22px;margin-bottom:5px}
+.ind small{color:#6b7280}
+.lista{display:grid;gap:12px}
+.caixa{border:1px solid #e5e7eb;border-radius:12px;padding:16px}
+.caixa-topo{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.caixa h3{margin:0 0 5px}
+.status{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:bold;font-size:13px}
+.aberto{background:#dcfce7;color:#166534}.fechado{background:#e5e7eb;color:#374151}
+.detalhe{display:none;margin-top:12px;border-top:1px solid #e5e7eb;padding-top:14px}
+.linha{display:flex;justify-content:space-between;gap:15px;padding:9px 0;border-bottom:1px solid #eee}
+.estado{text-align:center;color:#6b7280;padding:25px}
+.sobra{color:#166534}.falta{color:#b91c1c}.zero{color:#374151}
+@media(max-width:750px){.filtros,.resumo{grid-template-columns:1fr}.caixa-topo{align-items:flex-start;flex-direction:column}}
+@media print{header,.menu,.filtros,#btnImprimir,.acoes{display:none!important}body{background:#fff}.container{width:100%;margin:0}.card,.caixa{box-shadow:none}}
+</style>
+</head>
+<body>
+<header>
+<h1>📚 Histórico de Caixas</h1>
+<p>Fechamentos e resumo financeiro por período</p>
+</header>
+<main class="container">
+<nav class="menu">
+<a href="dashboard.html">📊 Dashboard</a>
+<a href="agenda.html">📅 Agenda</a>
+<a href="financeiro.html">💰 Financeiro</a>
+<a href="caixa_diario.html">📅 Caixa Diário</a>
+<a href="caixa_operacional.html">🏦 Caixa Operacional</a>
+<a href="historico_caixas.html" class="ativo">📚 Histórico de Caixas</a>
+</nav>
+
+<section class="card">
+<h2>🔎 Consultar período</h2>
+<div class="filtros">
+<div><label>Data inicial</label><input type="date" id="inicio"></div>
+<div><label>Data final</label><input type="date" id="fim"></div>
+<button id="consultar">🔎 Consultar</button>
+</div>
+</section>
+
+<section class="card">
+<h2>📊 Resumo do período</h2>
+<div class="resumo">
+<div class="ind"><strong id="qtdCaixas">0</strong><small>Caixas</small></div>
+<div class="ind"><strong id="totalInicial">R$ 0,00</strong><small>Valor inicial</small></div>
+<div class="ind"><strong id="totalEntradas">R$ 0,00</strong><small>Entradas</small></div>
+<div class="ind"><strong id="totalSaidas">R$ 0,00</strong><small>Saídas</small></div>
+<div class="ind"><strong id="totalEsperado">R$ 0,00</strong><small>Saldo esperado</small></div>
+<div class="ind"><strong id="totalContado">R$ 0,00</strong><small>Valor contado</small></div>
+<div class="ind"><strong id="totalDiferenca">R$ 0,00</strong><small>Diferença</small></div>
+<div class="ind"><strong id="totalDinheiro">R$ 0,00</strong><small>Recebido em dinheiro</small></div>
+</div>
+</section>
+
+<section class="card">
+<div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+<div><h2>📋 Fechamentos</h2><p id="contador">Carregando...</p></div>
+<button id="btnImprimir" style="width:auto;padding:10px 18px">🖨️ Imprimir / PDF</button>
+</div>
+<div id="lista" class="lista"><div class="estado">Carregando histórico...</div></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+
+const moeda=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+
+const esc=s=>String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+
+const formatarData=d=>{
+    const p=String(d||"").slice(0,10).split("-");
+    return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d;
+};
+
+async function json(url){
+    const r=await fetch(url);
+    const t=await r.text();
+    let x={};
+    try{x=t?JSON.parse(t):{}}catch{throw Error(`Resposta inválida do servidor (${r.status}).`)}
+    if(!r.ok)throw Error(x.erro||x.message||"Erro no servidor.");
+    return x;
+}
+
+const hoje=()=>{
+    const d=new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+};
+
+const primeiroDia=()=>{
+    const d=new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-01`;
+};
+
+async function pagamentosDoDia(data){
+    const inicio=new Date(`${data}T00:00:00`);
+    const fim=new Date(inicio); fim.setDate(fim.getDate()+1);
+    const x=await json(`/financeiro/pagamentos?data_inicio=${encodeURIComponent(inicio.toISOString())}&data_fim=${encodeURIComponent(fim.toISOString())}`);
+    return x.pagamentos||[];
+}
+
+async function dadosDoCaixa(caixa){
+    const [mov,pag]=await Promise.all([
+        json(`/caixa/${caixa.data}/movimentacoes`),
+        pagamentosDoDia(caixa.data)
+    ]);
+
+    const movimentos=mov.movimentacoes||[];
+    const entradas=movimentos.filter(x=>x.tipo==="entrada").reduce((a,x)=>a+Number(x.valor||0),0);
+    const saidas=movimentos.filter(x=>x.tipo==="saida").reduce((a,x)=>a+Number(x.valor||0),0);
+    const dinheiro=pag.filter(x=>x.forma_pagamento==="dinheiro").reduce((a,x)=>a+Number(x.valor||0),0);
+
+    return {movimentos,pagamentos:pag,entradas,saidas,dinheiro};
+}
+
+function classeDiferenca(v){
+    if(v>0)return "sobra";
+    if(v<0)return "falta";
+    return "zero";
+}
+
+async function carregar(){
+    $("lista").innerHTML='<div class="estado">⏳ Consultando fechamentos e calculando resumo...</div>';
+
+    try{
+        const x=await json("/caixa/historico/lista");
+        let caixas=x.caixas||[];
+        const inicio=$("inicio").value;
+        const fim=$("fim").value;
+
+        if(inicio)caixas=caixas.filter(c=>c.data>=inicio);
+        if(fim)caixas=caixas.filter(c=>c.data<=fim);
+
+        const dados=await Promise.all(caixas.map(async caixa=>{
+            try{return {...caixa,...await dadosDoCaixa(caixa)}}
+            catch(e){return {...caixa,movimentos:[],pagamentos:[],entradas:0,saidas:0,dinheiro:0,erroDetalhes:e.message}}
+        }));
+
+        renderResumo(dados);
+        renderLista(dados);
+    }catch(e){
+        $("lista").innerHTML=`<div class="estado">⚠️ ${esc(e.message)}</div>`;
+        $("contador").textContent="Não foi possível carregar.";
+    }
+}
+
+function renderResumo(caixas){
+    const soma=k=>caixas.reduce((a,c)=>a+Number(c[k]||0),0);
+    $("qtdCaixas").textContent=caixas.length;
+    $("totalInicial").textContent=moeda(soma("valor_inicial"));
+    $("totalEntradas").textContent=moeda(soma("entradas"));
+    $("totalSaidas").textContent=moeda(soma("saidas"));
+    $("totalEsperado").textContent=moeda(soma("saldo_esperado"));
+    $("totalContado").textContent=moeda(soma("valor_contado"));
+    const dif=soma("diferenca");
+    $("totalDiferenca").textContent=(dif>0?"+":"")+moeda(dif);
+    $("totalDiferenca").className=classeDiferenca(dif);
+    $("totalDinheiro").textContent=moeda(soma("dinheiro"));
+}
+
+function renderLista(caixas){
+    $("contador").textContent=`${caixas.length} caixa(s) encontrado(s)`;
+
+    if(!caixas.length){
+        $("lista").innerHTML='<div class="estado">Nenhum fechamento encontrado no período.</div>';
+        return;
+    }
+
+    $("lista").innerHTML=caixas.map((c,i)=>{
+        const dif=Number(c.diferenca||0);
+        const difTexto=dif>0?`Sobra: ${moeda(dif)}`:dif<0?`Falta: ${moeda(Math.abs(dif))}`:"Sem diferença";
+        return `<article class="caixa">
+            <div class="caixa-topo">
+                <div><h3>📅 ${formatarData(c.data)}</h3><small>${c.status==="fechado"&&c.fechado_em?"Fechado em "+new Date(c.fechado_em).toLocaleString("pt-BR"):"Caixa ainda aberto"}</small></div>
+                <span class="status ${c.status==="fechado"?"fechado":"aberto"}">${c.status==="fechado"?"🔒 Fechado":"🟢 Aberto"}</span>
+            </div>
+            <div class="resumo">
+                <div class="ind"><strong>${moeda(c.valor_inicial)}</strong><small>Valor inicial</small></div>
+                <div class="ind"><strong>${moeda(c.entradas)}</strong><small>Entradas</small></div>
+                <div class="ind"><strong>${moeda(c.saidas)}</strong><small>Saídas</small></div>
+                <div class="ind"><strong>${moeda(c.saldo_esperado)}</strong><small>Saldo esperado</small></div>
+                <div class="ind"><strong>${moeda(c.valor_contado)}</strong><small>Valor contado</small></div>
+                <div class="ind"><strong class="${classeDiferenca(dif)}">${esc(difTexto)}</strong><small>Diferença</small></div>
+            </div>
+            <div class="acoes" style="margin-top:12px">
+                <button type="button" onclick="detalhar(${i},this)">📋 Ver detalhes</button>
+            </div>
+            <div class="detalhe"></div>
+        </article>`;
+    }).join("");
+
+    window._caixasHistorico=caixas;
+}
+
+async function detalhar(index,botao){
+    const c=window._caixasHistorico[index];
+    const card=botao.closest(".caixa");
+    const box=card.querySelector(".detalhe");
+
+    if(box.style.display==="block"){
+        box.style.display="none";
+        botao.textContent="📋 Ver detalhes";
+        return;
+    }
+
+    box.style.display="block";
+    box.innerHTML='<div class="estado">⏳ Carregando detalhes...</div>';
+
+    try{
+        const d=await dadosDoCaixa(c);
+        box.innerHTML=`
+            <h4>💰 Composição</h4>
+            <div class="linha"><span>Valor inicial</span><strong>${moeda(c.valor_inicial)}</strong></div>
+            <div class="linha"><span>Recebido em dinheiro</span><strong>${moeda(d.dinheiro)}</strong></div>
+            <div class="linha"><span>Entradas manuais</span><strong>${moeda(d.entradas)}</strong></div>
+            <div class="linha"><span>Saídas</span><strong>${moeda(d.saidas)}</strong></div>
+            <div class="linha"><span>Saldo esperado</span><strong>${moeda(c.saldo_esperado)}</strong></div>
+            <div class="linha"><span>Valor contado</span><strong>${moeda(c.valor_contado)}</strong></div>
+            <div class="linha"><span>Diferença</span><strong class="${classeDiferenca(Number(c.diferenca||0))}">${moeda(c.diferenca)}</strong></div>
+            <h4>📋 Movimentações</h4>
+            ${d.movimentos.length?d.movimentos.map(m=>`<div class="linha"><span>${m.tipo==="entrada"?"➕ Entrada":"➖ Saída"}<br><small>${esc(m.descricao||"Sem descrição")}</small></span><strong>${moeda(m.valor)}</strong></div>`).join(""):'<div class="estado">Nenhuma movimentação manual.</div>'}
+            <h4>💳 Pagamentos</h4>
+            ${d.pagamentos.length?d.pagamentos.map(p=>`<div class="linha"><span>${esc(p.forma_pagamento||"Não informado")}<br><small>${p.agendamentos?.pacientes?.nome?esc(p.agendamentos.pacientes.nome):"Paciente não informado"}</small></span><strong>${moeda(p.valor)}</strong></div>`).join(""):'<div class="estado">Nenhum pagamento registrado.</div>'}
+        `;
+        botao.textContent="🔼 Ocultar detalhes";
+    }catch(e){
+        box.innerHTML=`<div class="estado">⚠️ ${esc(e.message)}</div>`;
+    }
+}
+
+$("inicio").value=primeiroDia();
+$("fim").value=hoje();
+$("consultar").addEventListener("click",carregar);
+$("btnImprimir").addEventListener("click",()=>window.print());
+carregar();
+
+</script>
+</body>
+</html>

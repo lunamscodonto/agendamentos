@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Agenda - Clínica Odontológica</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <style>
+
+        .agenda-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .mes-navegacao {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .mes-navegacao button {
+            padding: 8px 14px;
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .mes-navegacao h2 {
+            margin: 0;
+        }
+
+        .calendario {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .dia-semana {
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: #6b7280;
+            padding: 8px 0;
+        }
+
+        .dia {
+            min-height: 42px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            padding: 10px 5px;
+            transition: 0.2s;
+        }
+
+        .dia:hover {
+            border-color: #2563eb;
+        }
+
+        .dia.outro-mes {
+            color: #9ca3af;
+            background: #f9fafb;
+        }
+
+        .dia.hoje {
+            font-weight: bold;
+            border: 2px solid #2563eb;
+        }
+
+        .dia.selecionado {
+            background: #2563eb;
+            color: white;
+        }
+
+        .dia.ocupado {
+            position: relative;
+        }
+
+        .dia.ocupado::after {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background: #dc2626;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .horarios {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .horario {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .hora {
+            width: 60px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .horario-livre {
+            background: #f0fdf4;
+        }
+
+        .horario-ocupado {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .agendamento-info {
+            flex: 1;
+        }
+
+        .agendamento-info strong {
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .agendamento-info small {
+            color: #6b7280;
+        }
+
+        .btn-agendar-hora {
+            padding: 7px 10px;
+            background: #2563eb;
+            color: white;
+            font-size: 12px;
+        }
+
+        .btn-agendar-hora:hover {
+            background: #1d4ed8;
+        }
+
+        .data-selecionada {
+            margin-bottom: 15px;
+            color: #374151;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.aberto {
+            display: flex;
+        }
+
+        .modal-conteudo {
+            background: white;
+            width: 100%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 14px;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-fechar {
+            background: #e5e7eb;
+            color: #374151;
+            padding: 7px 12px;
+        }
+
+        .resumo-procedimento {
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        @media (max-width: 800px) {
+
+            .agenda-layout {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        /* =====================================================
+           NOVO AGENDAMENTO — INTEGRADO AO FUNDO AZUL
+        ===================================================== */
+        .modal-conteudo {
+            background: #5aa9e6 !important;
+            color: #123b63 !important;
+            box-shadow: none !important;
+        }
+
+        .modal-conteudo input,
+        .modal-conteudo select,
+        .modal-conteudo textarea {
+            background: rgba(255,255,255,0.08) !important;
+            color: #123b63 !important;
+            border-color: rgba(255,255,255,0.55) !important;
+        }
+
+        .modal-conteudo input::placeholder,
+        .modal-conteudo textarea::placeholder {
+            color: rgba(18,59,99,0.72) !important;
+        }
+
+        .modal-conteudo .btn-fechar {
+            background: rgba(255,255,255,0.45) !important;
+            color: #123b63 !important;
+        }
+
+
+        /* =====================================================
+           AGENDA — TELA COMPLETA NO MESMO FUNDO AZUL
+        ===================================================== */
+        body {
+            background: #5aa9e6 !important;
+        }
+
+        main.container,
+        .agenda-layout,
+        .agenda-layout > section,
+        .agenda-layout .card,
+        .agenda-layout .calendario,
+        .agenda-layout .horarios,
+        .agenda-layout .conteudo,
+        .agenda-layout .lista-horarios {
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        /* Remove os grandes cartões brancos do calendário e horários */
+        main.container > .agenda-layout > section.card {
+            border: none !important;
+        }
+
+        /* Áreas internas */
+        .agenda-layout .data-selecionada,
+        .agenda-layout .campo,
+        .agenda-layout .filtro,
+        .agenda-layout .controles,
+        .agenda-layout .area-calendario {
+            background: transparent !important;
+        }
+
+        /* Modal Novo Agendamento */
+        .modal {
+            background: rgba(0, 0, 0, 0.35) !important;
+        }
+
+        .modal-conteudo {
+            background: #5aa9e6 !important;
+            color: #123b63 !important;
+            box-shadow: none !important;
+            border: 1px solid rgba(255,255,255,0.35) !important;
+        }
+
+        .modal-conteudo input,
+        .modal-conteudo select,
+        .modal-conteudo textarea {
+            background: rgba(255,255,255,0.08) !important;
+            color: #123b63 !important;
+            border-color: rgba(255,255,255,0.55) !important;
+        }
+
+        .modal-conteudo input::placeholder,
+        .modal-conteudo textarea::placeholder {
+            color: rgba(18,59,99,0.72) !important;
+        }
+
+        .modal-conteudo .btn-fechar {
+            background: rgba(255,255,255,0.45) !important;
+            color: #123b63 !important;
+        }
+
+
+        /* =====================================================
+           WHATSAPP — CONFIRMAÇÃO DE AGENDAMENTO
+        ===================================================== */
+        .btn-whatsapp {
+            padding: 7px 10px;
+            background: #25D366;
+            color: white;
+            font-size: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-whatsapp:hover {
+            background: #1ebe5d;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <header class="topo">
+
+        <div>
+
+            <h1>🦷 Clínica Odontológica</h1>
+
+            <p>
+                Agenda de consultas
+            </p>
+
+        </div>
+
+    </header>
+
+
+    <main class="container">
+
+        <div class="agenda-layout">
+
+            <!-- =====================================
+                 CALENDÁRIO
+            ====================================== -->
+
+            <section class="card">
+
+                <div class="mes-navegacao">
+
+                    <button
+                        type="button"
+                        id="mesAnterior"
+                    >
+                        ‹
+                    </button>
+
+                    <h2 id="tituloMes">
+                        Agosto 2026
+                    </h2>
+
+                    <button
+                        type="button"
+                        id="proximoMes"
+                    >
+                        ›
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="calendario"
+                    class="calendario"
+                ></div>
+
+            </section>
+
+
+            <!-- =====================================
+                 HORÁRIOS
+            ====================================== -->
+
+            <section class="card">
+
+                <h2>
+                    Horários
+                </h2>
+
+                <p
+                    id="dataSelecionada"
+                    class="data-selecionada"
+                >
+                    Selecione uma data.
+                </p>
+
+
+<div class="campo" style="margin-bottom: 15px;">
+
+    <label for="filtroDentista">
+        Dentista
+    </label>
+
+    <select id="filtroDentista">
+
+        <option value="">
+            Todos os dentistas
+        </option>
+
+    </select>
+
+</div>
+
+                <div
+                    id="horarios"
+                    class="horarios"
+                >
+
+                    <div class="estado-vazio">
+
+                        <div class="icone">
+                            📅
+                        </div>
+
+                        <h3>
+                            Nenhum dia selecionado
+                        </h3>
+
+                        <p>
+                            Clique em uma data no calendário.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================================
+         MODAL DE AGENDAMENTO
+    ========================================== -->
+
+    <div
+        id="modal"
+        class="modal"
+    >
+
+        <div class="modal-conteudo">
+
+            <div class="modal-header">
+
+                <h2>
+                    Novo Agendamento
+                </h2>
+
+                <button
+                    type="button"
+                    class="btn-fechar"
+                    id="fecharModal"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <form id="formAgendamento">
+
+                <div class="campo">
+
+                    <label for="paciente_id">
+                        Paciente *
+                    </label>
+
+                    <select
+                        id="paciente_id"
+                        required
+                    >
+
+                        <option value="">
+                            Selecione o paciente
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <br>
+
+
+                <div class="campo">
+
+                    <label for="dentista_id">
+                        Dentista *
+                    </label>
+
+                    <select
+                        id="dentista_id"
+                        required
+                    >
+
+                        <option value="">
+                            Selecione o dentista
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <br>
+
+
+                <div class="campo">
+
+                    <label for="procedimento_id">
+                        Procedimento *
+                    </label>
+
+                    <select
+                        id="procedimento_id"
+                        required
+                    >
+
+                        <option value="">
+                            Selecione o procedimento
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    id="resumoProcedimento"
+                    class="resumo-procedimento"
+                ></div>
+
+
+                <br>
+
+
+                <div class="campo">
+
+                    <label for="data_hora">
+                        Data e horário *
+                    </label>
+
+                    <input
+                        type="datetime-local"
+                        id="data_hora"
+                        required
+                    >
+
+                </div>
+
+
+                <br>
+
+
+                <div class="campo">
+
+                    <label for="observacoes">
+                        Observações
+                    </label>
+
+                    <textarea
+                        id="observacoes"
+                        rows="3"
+                        placeholder="Observações do agendamento..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="acoes">
+
+                    <button
+                        type="button"
+                        class="btn-secundario"
+                        id="cancelarModal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn-principal"
+                    >
+                        📅 Confirmar agendamento
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="mensagem"
+        class="mensagem"
+    ></div>
+
+
+    <script src="agenda.js"></script>
+
+</body>
+
+</html>

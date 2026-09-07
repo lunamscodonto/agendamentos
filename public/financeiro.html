@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financeiro — Clínica Odontológica</title>
+<style>
+:root{
+    --azul:#0b5fa5;
+    --azul-escuro:#064a83;
+    --azul-claro:#eaf5ff;
+    --gelo:#f4f8fc;
+    --branco:#fff;
+    --texto:#000000;
+    --verde:#138a4b;
+    --vermelho:#c92a2a;
+    --amarelo:#a66a00;
+    --borda:#d7e3ee;
+    --sombra:0 10px 28px rgba(10,60,100,.12);
+}
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#55A6EF;
+    color:var(--texto);
+}
+header{
+    background:linear-gradient(135deg,#064a83,#0b5fa5);
+    color:#fff;
+    padding:22px 24px;
+}
+.header-inner{
+    max-width:1250px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+}
+header h1{margin:0;font-size:25px}
+header p{margin:5px 0 0;opacity:.88}
+.container{max-width:1250px;margin:0 auto;padding:22px}
+.toolbar,.form-card,.table-card,.details-card{
+    background:#55A6EF;
+    border-radius:18px;
+    box-shadow:var(--sombra);
+}
+.toolbar{padding:16px;margin-bottom:18px}
+.toolbar-row{
+    display:flex;gap:10px;align-items:end;flex-wrap:wrap;
+}
+.field{display:flex;flex-direction:column;gap:6px;min-width:160px;flex:1}
+.field.small{max-width:190px}
+label{font-weight:700;font-size:13px}
+input,select,textarea{
+    width:100%;padding:11px 12px;border:1px solid var(--borda);
+    border-radius:10px;font-size:14px;outline:none;background:#fff;
+}
+textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(11,95,165,.1)}
+button{
+    border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer;
+}
+.btn-primary{background:var(--azul);color:#fff}
+.btn-primary:hover{background:var(--azul-escuro)}
+.btn-secondary{background:#e7eef5;color:var(--texto)}
+.btn-green{background:var(--verde);color:#fff}
+.btn-red{background:#fff0f0;color:var(--vermelho)}
+.cards{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px
+}
+.card{
+    background:#55A6EF;border-radius:16px;padding:18px;box-shadow:var(--sombra)
+}
+.card .label{font-size:13px;color:#000000}
+.card .value{font-size:25px;font-weight:800;margin-top:7px}
+.card.total .value{color:var(--azul)}
+.card.recebido .value{color:var(--verde)}
+.card.devedor .value{color:var(--vermelho)}
+.card.tratamentos .value{color:#6d4db3}
+.grid{
+    display:grid;grid-template-columns:390px 1fr;gap:18px;align-items:start
+}
+.form-card{padding:20px}
+.form-card h2,.table-card h2,.details-card h2{margin-top:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid .full{grid-column:1/-1}
+.actions{display:flex;gap:10px;margin-top:15px}
+.table-card{padding:18px;overflow:hidden}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{padding:12px 10px;border-bottom:1px solid #e8eef3;text-align:left;font-size:13px}
+th{background:#f1f7fb;position:sticky;top:0;z-index:1}
+td.money{font-weight:700;white-space:nowrap}
+.status{
+    display:inline-flex;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:800
+}
+.status.ok{background:#e7f7ee;color:var(--verde)}
+.status.pending{background:#fff4df;color:var(--amarelo)}
+.empty{text-align:center;padding:35px;color:#000000}
+.details-card{margin-top:18px;padding:20px;display:none}
+.detail-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:15px 0
+}
+.detail{
+    background:#55A6EF;border-radius:12px;padding:14px
+}
+.detail small{display:block;color:#000000;margin-bottom:5px}
+.detail strong{font-size:18px}
+.progress{height:10px;background:#e5edf4;border-radius:20px;overflow:hidden}
+.progress > div{height:100%;background:var(--verde);width:0;transition:.25s}
+.modal{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);
+    align-items:center;justify-content:center;padding:18px;z-index:50
+}
+.modal.show{display:flex}
+.modal-box{
+    width:min(480px,100%);background:#fff;border-radius:18px;padding:22px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25)
+}
+.modal-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.close{background:#eef3f7;border-radius:50%;width:36px;height:36px;padding:0}
+.alert{
+    display:none;padding:11px 13px;border-radius:10px;margin-bottom:12px;font-weight:700
+}
+.alert.show{display:block}
+.alert.error{background:#fff0f0;color:var(--vermelho)}
+.alert.success{background:#eaf8f0;color:var(--verde)}
+@media(max-width:950px){
+    .grid{grid-template-columns:1fr}
+    .cards{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){
+    .container{padding:12px}
+    .cards{grid-template-columns:1fr}
+    .form-grid,.detail-grid{grid-template-columns:1fr}
+    .header-inner{align-items:flex-start;flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>💰 Financeiro</h1>
+      <p>Controle de tratamentos e pagamentos</p>
+    </div>
+    <button class="btn-secondary" onclick="voltarPainel()">← Voltar ao Painel</button>
+  </div>
+</header>
+
+<main class="container">
+
+  <section class="toolbar">
+    <div class="toolbar-row">
+      <div class="field">
+        <label for="filtroDentista">Dentista</label>
+        <select id="filtroDentista">
+          <option value="">Todos os dentistas</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="busca">Paciente</label>
+        <input id="busca" type="text" list="listaBuscaPacientes" autocomplete="off"
+               placeholder="Digite nome, telefone ou CPF">
+        <datalist id="listaBuscaPacientes"></datalist>
+      </div>
+
+      <div class="field small">
+        <label for="filtroStatus">Status</label>
+        <select id="filtroStatus">
+          <option value="">Todos</option>
+          <option value="em_andamento">Em andamento</option>
+          <option value="quitado">Quitado</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" type="button" onclick="consultarFinanceiro()">🔎 Consultar</button>
+      <button class="btn-secondary" type="button" onclick="limparConsulta()">Limpar</button>
+    </div>
+
+    <div style="margin-top:10px;color:#000000;font-size:13px">
+      Informe um paciente, escolha um dentista, um status ou combine os filtros.
+      Para consultar todos os pacientes de uma situação, selecione apenas o <strong>Status</strong>.
+    </div>
+  </section>
+
+  <div id="alerta" class="alert"></div>
+
+  <section class="grid">
+    <div class="form-card">
+      <h2>➕ Novo tratamento</h2>
+      <p style="color:#000000;font-size:13px">
+        Cadastre o valor total do tratamento. Os pagamentos serão registrados separadamente, sem parcelas fixas.
+      </p>
+
+      <form id="formTratamento">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="paciente_id">Paciente *</label>
+            <select id="paciente_id" required>
+              <option value="">Carregando...</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="dentista_id">Dentista *</label>
+            <select id="dentista_id" required>
+              <option value="">Carregando...</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="procedimento_id">Procedimento *</label>
+            <select id="procedimento_id" required>
+              <option value="">Carregando...</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="valor_total">Valor total *</label>
+            <input id="valor_total" type="number" min="0.01" step="0.01" placeholder="3000,00" required>
+          </div>
+
+          <div class="field">
+            <label for="data_inicio">Data do tratamento *</label>
+            <input id="data_inicio" type="date" required>
+          </div>
+
+          <div class="field full">
+            <label for="observacoes">Observações</label>
+            <textarea id="observacoes" placeholder="Observações do tratamento..."></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn-primary" type="submit">💾 Salvar tratamento</button>
+          <button class="btn-secondary" type="button" onclick="limparForm()">Limpar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="table-card">
+      <h2>📋 Tratamentos encontrados</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Paciente</th>
+              <th>Procedimento</th>
+              <th>Dentista</th>
+              <th>Total</th>
+              <th>Pago</th>
+              <th>Saldo devedor</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="listaTratamentos">
+            <tr><td colspan="8" class="empty">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="details-card" id="detalhes">
+    <h2>🔎 Detalhes do tratamento</h2>
+    <div id="detalhesConteudo"></div>
+  </section>
+
+</main>
+
+<div class="modal" id="modalPagamento">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 style="margin:0">💳 Registrar pagamento</h2>
+      <button class="close" onclick="fecharModal()">✕</button>
+    </div>
+    <p id="infoPagamento" style="color:#000000"></p>
+    <div id="saldoModal" class="detail" style="margin-bottom:12px"></div>
+
+    <form id="formPagamento">
+      <div class="field">
+        <label for="pagamentoValor">Valor do pagamento *</label>
+        <input id="pagamentoValor" type="number" min="0.01" step="0.01" required>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label for="pagamentoData">Data do pagamento *</label>
+        <input id="pagamentoData" type="date" required>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label for="pagamentoObs">Observação</label>
+        <textarea id="pagamentoObs" placeholder="Ex.: pagamento realizado no consultório"></textarea>
+      </div>
+      <div class="actions">
+        <button class="btn-green" type="submit">💾 Registrar</button>
+        <button class="btn-secondary" type="button" onclick="fecharModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const API = "";
+let tratamentos = [];
+let pacientes = [];
+let dentistas = [];
+let procedimentos = [];
+let tratamentoPagamentoId = null;
+
+const moeda = valor =>
+  Number(valor || 0).toLocaleString("pt-BR", {
+    style:"currency",
+    currency:"BRL"
+  });
+
+const hoje = () => new Date().toISOString().slice(0,10);
+
+function dataBR(data){
+  if(!data) return "-";
+  const partes = String(data).slice(0,10).split("-");
+  return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : data;
+}
+
+function mostrarAlerta(msg, tipo="success"){
+  const el = document.getElementById("alerta");
+  el.textContent = msg;
+  el.className = `alert show ${tipo}`;
+  setTimeout(()=> el.className="alert", 3500);
+}
+
+async function api(url, opcoes={}){
+  const resposta = await fetch(API + url, {
+    headers: {"Content-Type":"application/json"},
+    ...opcoes
+  });
+  const dados = await resposta.json().catch(()=>({}));
+  if(!resposta.ok){
+    throw new Error(dados.erro || dados.message || "Erro na operação.");
+  }
+  return dados;
+}
+
+async function carregarCadastros(){
+  const [p,d,pr] = await Promise.all([
+    api("/pacientes"),
+    api("/dentistas"),
+    api("/procedimentos")
+  ]);
+
+  pacientes = p.pacientes || [];
+  dentistas = d.dentistas || [];
+  procedimentos = pr.procedimentos || [];
+
+  // A pesquisa mostra somente o nome completo do paciente.
+  const listaBusca = document.getElementById("listaBuscaPacientes");
+  if (listaBusca) {
+    listaBusca.innerHTML = pacientes
+      .map(x => `<option value="${escapeHtml(x.nome)}"></option>`)
+      .join("");
+  }
+
+  document.getElementById("paciente_id").innerHTML =
+    '<option value="">Selecione o paciente</option>' +
+    pacientes.map(x =>
+      `<option value="${x.id}">${escapeHtml(x.nome)}${x.telefone ? " — " + escapeHtml(x.telefone) : ""}</option>`
+    ).join("");
+
+  document.getElementById("dentista_id").innerHTML =
+    '<option value="">Selecione o dentista</option>' +
+    dentistas.map(x =>
+      `<option value="${x.id}">${escapeHtml(x.nome)}</option>`
+    ).join("");
+
+  document.getElementById("filtroDentista").innerHTML =
+    '<option value="">Todos os dentistas</option>' +
+    dentistas.map(x =>
+      `<option value="${x.id}">${escapeHtml(x.nome)}</option>`
+    ).join("");
+
+  document.getElementById("procedimento_id").innerHTML =
+    '<option value="">Selecione o procedimento</option>' +
+    procedimentos.map(x =>
+      `<option value="${x.id}" data-valor="${Number(x.valor||0)}">${escapeHtml(x.nome)} — ${moeda(x.valor)}</option>`
+    ).join("");
+}
+
+function escapeHtml(v){
+  return String(v ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+}
+
+document.getElementById("procedimento_id").addEventListener("change", function(){
+  const option = this.options[this.selectedIndex];
+  const valor = option?.dataset?.valor;
+  if(valor && !document.getElementById("valor_total").value){
+    document.getElementById("valor_total").value = Number(valor).toFixed(2);
+  }
+});
+
+function pacienteNome(t){
+  return t.paciente?.nome ||
+    encontrarNome(pacientes, t.paciente_id) ||
+    "Paciente não encontrado";
+}
+
+function dentistaNome(t){
+  return t.dentista?.nome ||
+    encontrarNome(dentistas, t.dentista_id) ||
+    "Dentista não encontrado";
+}
+
+function procedimentoNome(t){
+  return t.procedimento?.nome ||
+    encontrarNome(procedimentos, t.procedimento_id) ||
+    "Procedimento não encontrado";
+}
+
+function encontrarNome(lista, id){
+  const item = lista.find(x => String(x.id) === String(id));
+  return item?.nome || "";
+}
+
+function normalizarBusca(valor){
+  return String(valor || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function pacientesEncontrados(termo){
+  const busca = normalizarBusca(termo);
+  if(!busca) return pacientes;
+
+  return pacientes.filter(p => {
+    const nome = normalizarBusca(p.nome);
+    const telefone = normalizarBusca(p.telefone);
+    const cpf = normalizarBusca(p.cpf);
+    return nome.includes(busca) || telefone.includes(busca) || cpf.includes(busca);
+  });
+}
+
+async function carregarTratamentos(opcoes = {}){
+  const params = new URLSearchParams();
+
+  const status = opcoes.status ?? "";
+  const dentistaId = opcoes.dentistaId ?? "";
+  const busca = (opcoes.busca ?? "").trim();
+
+  if(status) params.set("status", status);
+  if(dentistaId) params.set("dentista_id", dentistaId);
+
+  // A API recebe o status. Dentista e paciente também são filtrados no navegador
+  // para manter a consulta compatível com o servidor atual.
+  const dados = await api("/tratamentos-financeiros?" + params.toString());
+  tratamentos = dados.tratamentos || [];
+
+  if(dentistaId){
+    tratamentos = tratamentos.filter(t =>
+      String(t.dentista_id) === String(dentistaId)
+    );
+  }
+
+  if(busca){
+    const encontrados = pacientesEncontrados(busca);
+    const idsPacientes = new Set(encontrados.map(p => String(p.id)));
+
+    // Se a busca corresponde a um paciente, filtra pelo ID.
+    // Isso evita depender de como o servidor devolve os dados relacionados.
+    tratamentos = tratamentos.filter(t =>
+      idsPacientes.has(String(t.paciente_id))
+    );
+  }
+
+  renderTabela();
+}
+
+async function consultarFinanceiro(){
+  try{
+    const status = document.getElementById("filtroStatus").value;
+    const dentistaId = document.getElementById("filtroDentista").value;
+    const busca = document.getElementById("busca").value;
+
+    if(!status && !dentistaId && !busca.trim()){
+      mostrarAlerta("Informe pelo menos um filtro para realizar a consulta.", "error");
+      renderTabela();
+      return;
+    }
+
+    await carregarTratamentos({status, dentistaId, busca});
+
+    if(!tratamentos.length){
+      mostrarAlerta("Nenhum tratamento encontrado para os filtros informados.", "error");
+    }else{
+      mostrarAlerta(`${tratamentos.length} tratamento(s) encontrado(s).`);
+    }
+  }catch(err){
+    console.error(err);
+    mostrarAlerta(err.message, "error");
+  }
+}
+
+function limparConsulta(){
+  document.getElementById("filtroDentista").value = "";
+  document.getElementById("busca").value = "";
+  document.getElementById("filtroStatus").value = "";
+  tratamentos = [];
+
+  document.getElementById("listaTratamentos").innerHTML =
+    '<tr><td colspan="8" class="empty">Informe os filtros e clique em Consultar.</td></tr>';
+
+  document.getElementById("detalhes").style.display = "none";
+  document.getElementById("alerta").className = "alert";
+}
+
+function renderTabela(){
+  const tbody = document.getElementById("listaTratamentos");
+
+  if(!tratamentos.length){
+    tbody.innerHTML =
+      '<tr><td colspan="8" class="empty">Nenhum tratamento encontrado.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = tratamentos.map(t => `
+    <tr>
+      <td><strong>${escapeHtml(pacienteNome(t))}</strong></td>
+      <td>${escapeHtml(procedimentoNome(t))}</td>
+      <td>${escapeHtml(dentistaNome(t))}</td>
+      <td class="money">${moeda(t.valor_total)}</td>
+      <td class="money" style="color:#138a4b">${moeda(t.total_pago)}</td>
+      <td class="money" style="color:${Number(t.saldo_devedor)>0 ? "#c92a2a" : "#138a4b"}">${moeda(t.saldo_devedor)}</td>
+      <td>
+        <span class="status ${String(t.status || "").toLowerCase() === "quitado" ? "ok" : "pending"}">
+          ${String(t.status || "").toLowerCase() === "quitado" ? "QUITADO" : "EM ANDAMENTO"}
+        </span>
+      </td>
+      <td>
+        <button class="btn-secondary" onclick="verDetalhes('${t.id}')">Ver</button>
+        ${String(t.status || "").toLowerCase() !== "quitado" ? `<button class="btn-green" onclick="abrirPagamento('${t.id}')">Pagar</button>` : ""}
+      </td>
+    </tr>
+  `).join("");
+}
+
+async function verDetalhes(id){
+  const dados = await api(`/tratamentos-financeiros/${id}`);
+  const t = dados.tratamento;
+
+  const detalhes = document.getElementById("detalhes");
+  detalhes.style.display = "block";
+
+  document.getElementById("detalhesConteudo").innerHTML = `
+    <div class="detail-grid">
+      <div class="detail"><small>Paciente</small><strong>${escapeHtml(pacienteNome(t))}</strong></div>
+      <div class="detail"><small>Dentista</small><strong>${escapeHtml(dentistaNome(t))}</strong></div>
+      <div class="detail"><small>Procedimento</small><strong>${escapeHtml(procedimentoNome(t))}</strong></div>
+      <div class="detail"><small>Valor total</small><strong>${moeda(t.valor_total)}</strong></div>
+      <div class="detail"><small>Total pago</small><strong style="color:#138a4b">${moeda(t.total_pago)}</strong></div>
+      <div class="detail"><small>Saldo devedor</small><strong style="color:${t.saldo_devedor > 0 ? "#c92a2a" : "#138a4b"}">${moeda(t.saldo_devedor)}</strong></div>
+      <div class="detail"><small>Data do tratamento</small><strong>${dataBR(t.data_inicio)}</strong></div>
+      <div class="detail"><small>Status</small><strong>${t.status === "quitado" ? "✅ Quitado" : "⏳ Em andamento"}</strong></div>
+      <div class="detail"><small>Percentual pago</small><strong>${Number(t.percentual_pago || 0).toFixed(2)}%</strong></div>
+    </div>
+    <div class="progress"><div style="width:${Math.min(100,Number(t.percentual_pago||0))}%"></div></div>
+    ${t.observacoes ? `<p><strong>Observações:</strong> ${escapeHtml(t.observacoes)}</p>` : ""}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:10px;flex-wrap:wrap">
+      <h3 style="margin:0">Histórico de pagamentos</h3>
+      ${String(t.status || "").toLowerCase() !== "quitado" ? `<button class="btn-green" onclick="abrirPagamento('${t.id}')">➕ Registrar pagamento</button>` : `<span class="status ok">TRATAMENTO QUITADO</span>`}
+    </div>
+    <div class="table-wrap" style="margin-top:10px">
+      <table style="min-width:500px">
+        <thead><tr><th>Data</th><th>Valor</th><th>Observação</th></tr></thead>
+        <tbody>
+          ${(t.pagamentos || []).length
+            ? t.pagamentos.map(p => `<tr><td>${dataBR(p.data_pagamento)}</td><td class="money">${moeda(p.valor)}</td><td>${escapeHtml(p.observacoes || "-")}</td></tr>`).join("")
+            : '<tr><td colspan="3" class="empty">Nenhum pagamento registrado.</td></tr>'
+          }
+        </tbody>
+      </table>
+    </div>
+  `;
+  detalhes.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function abrirPagamento(id){
+  const t = tratamentos.find(x => String(x.id) === String(id));
+  if(!t) return;
+
+  tratamentoPagamentoId = id;
+  document.getElementById("infoPagamento").textContent =
+    `${pacienteNome(t)} • ${procedimentoNome(t)}`;
+
+  document.getElementById("saldoModal").innerHTML =
+    `<small>Saldo disponível</small><strong style="color:#c92a2a">${moeda(t.saldo_devedor)}</strong>`;
+
+  const input = document.getElementById("pagamentoValor");
+  input.value = "";
+  input.max = Number(t.saldo_devedor || 0).toFixed(2);
+
+  document.getElementById("pagamentoData").value = hoje();
+  document.getElementById("pagamentoObs").value = "";
+  document.getElementById("modalPagamento").classList.add("show");
+  setTimeout(()=>input.focus(),100);
+}
+
+function fecharModal(){
+  document.getElementById("modalPagamento").classList.remove("show");
+  tratamentoPagamentoId = null;
+}
+
+
+function enviarWhatsAppPagamento(t, valorPago, dataPagamento, saldoRestante){
+  const paciente =
+    t.paciente ||
+    pacientes.find(p => String(p.id) === String(t.paciente_id)) ||
+    {};
+
+  const telefone = String(
+    paciente.telefone ||
+    paciente.celular ||
+    paciente.whatsapp ||
+    ""
+  ).replace(/\D/g, "");
+
+  if(!telefone){
+    mostrarAlerta("Pagamento registrado, mas o paciente não possui telefone cadastrado.", "error");
+    return;
+  }
+
+  let telefoneWhatsApp = telefone;
+  if(telefoneWhatsApp.length === 10 || telefoneWhatsApp.length === 11){
+    telefoneWhatsApp = "55" + telefoneWhatsApp;
+  }
+
+  const nomePaciente = paciente.nome || pacienteNome(t);
+  const nomeDentista = dentistaNome(t);
+  const nomeProcedimento = procedimentoNome(t);
+  const data = dataBR(dataPagamento);
+
+  const quitado = Number(saldoRestante || 0) <= 0.005;
+
+  // Texto sem emojis para evitar problemas de codificação no WhatsApp.
+  const mensagemWhatsApp =
+`Olá, ${nomePaciente}!
+
+Registramos seu pagamento na Clínica Odontológica.
+
+Valor pago: ${moeda(valorPago)}
+Data do pagamento: ${data}
+Procedimento: ${nomeProcedimento}
+Dentista: ${nomeDentista}
+Saldo restante: ${moeda(saldoRestante)}
+
+${quitado
+  ? "Seu tratamento está quitado. Obrigado!"
+  : "Seu pagamento foi registrado com sucesso. Agradecemos a preferência!"}`;
+
+  const url =
+    `https://wa.me/${telefoneWhatsApp}?text=${encodeURIComponent(mensagemWhatsApp)}`;
+
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+document.getElementById("formPagamento").addEventListener("submit", async e=>{
+  e.preventDefault();
+  if(!tratamentoPagamentoId) return;
+
+  const valor = Number(document.getElementById("pagamentoValor").value);
+  const t = tratamentos.find(x => String(x.id) === String(tratamentoPagamentoId));
+
+  if(!t) return;
+  if(!Number.isFinite(valor) || valor <= 0){
+    mostrarAlerta("Informe um valor válido.", "error");
+    return;
+  }
+  if(valor > Number(t.saldo_devedor) + 0.005){
+    mostrarAlerta(`O valor não pode ultrapassar ${moeda(t.saldo_devedor)}.`, "error");
+    return;
+  }
+
+  try{
+    const idTratamento = tratamentoPagamentoId;
+
+    const dados = await api(`/tratamentos-financeiros/${idTratamento}/pagamentos`,{
+      method:"POST",
+      body:JSON.stringify({
+        valor,
+        data_pagamento:document.getElementById("pagamentoData").value,
+        observacoes:document.getElementById("pagamentoObs").value.trim()
+      })
+    });
+
+    fecharModal();
+    mostrarAlerta(dados.mensagem || "Pagamento registrado com sucesso!");
+
+    // Recalcula o saldo com base no pagamento realizado.
+    const saldoAnterior = Number(t.saldo_devedor || 0);
+    const saldoRestante = Math.max(0, saldoAnterior - valor);
+
+    // Abre o WhatsApp do paciente com a confirmação do pagamento.
+    enviarWhatsAppPagamento(
+      t,
+      valor,
+      document.getElementById("pagamentoData").value,
+      saldoRestante
+    );
+
+    // Atualiza a consulta mantendo os filtros atuais.
+    await carregarTratamentos({
+      status: document.getElementById("filtroStatus").value,
+      dentistaId: document.getElementById("filtroDentista").value,
+      busca: document.getElementById("busca").value
+    });
+
+    await verDetalhes(idTratamento);
+  }catch(err){
+    mostrarAlerta(err.message,"error");
+  }
+});
+
+document.getElementById("formTratamento").addEventListener("submit", async e=>{
+  e.preventDefault();
+
+  try{
+    const dados = await api("/tratamentos-financeiros",{
+      method:"POST",
+      body:JSON.stringify({
+        paciente_id:document.getElementById("paciente_id").value,
+        dentista_id:document.getElementById("dentista_id").value,
+        procedimento_id:document.getElementById("procedimento_id").value,
+        valor_total:Number(document.getElementById("valor_total").value),
+        data_inicio:document.getElementById("data_inicio").value,
+        observacoes:document.getElementById("observacoes").value.trim()
+      })
+    });
+
+    mostrarAlerta(dados.mensagem || "Tratamento cadastrado com sucesso!");
+    limparForm();
+
+    // Não abre a lista automaticamente. A consulta respeita os filtros escolhidos.
+    tratamentos = [];
+    document.getElementById("listaTratamentos").innerHTML =
+      '<tr><td colspan="8" class="empty">Informe os filtros e clique em Consultar.</td></tr>';
+  }catch(err){
+    mostrarAlerta(err.message,"error");
+  }
+});
+
+function limparForm(){
+  document.getElementById("formTratamento").reset();
+  document.getElementById("data_inicio").value = hoje();
+}
+
+document.getElementById("busca").addEventListener("keydown", e => {
+  if(e.key === "Enter"){
+    e.preventDefault();
+    consultarFinanceiro();
+  }
+});
+
+document.getElementById("busca").addEventListener("input", function(){
+  const termo = this.value.trim();
+
+  // Atualiza as sugestões mantendo somente os nomes completos.
+  const lista = document.getElementById("listaBuscaPacientes");
+  if(lista){
+    const encontrados = pacientesEncontrados(termo).slice(0, 30);
+    lista.innerHTML = encontrados
+      .map(p => `<option value="${escapeHtml(p.nome)}"></option>`)
+      .join("");
+  }
+});
+
+function voltarPainel(){
+  if(document.referrer && document.referrer.includes(location.host)){
+    history.back();
+  }else{
+    location.href = "/";
+  }
+}
+
+async function carregarTudo(){
+  try{
+    await carregarCadastros();
+
+    // A lista de tratamentos começa vazia.
+    // O usuário consulta por paciente, dentista, status ou combinação.
+    tratamentos = [];
+    renderTabela();
+  }catch(err){
+    console.error(err);
+    mostrarAlerta(err.message,"error");
+  }
+}
+
+document.getElementById("data_inicio").value = hoje();
+document.getElementById("pagamentoData").value = hoje();
+carregarTudo();
+</script>
+</body>
+</html>
