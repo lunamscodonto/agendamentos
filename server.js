@@ -3,6 +3,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -50,11 +55,10 @@ app.use(express.json());
 // =====================================================
 
 app.get("/", (req, res) => {
-    res.json({
-        mensagem: "Sistema da Clínica Odontológica funcionando!",
-        banco: "Supabase conectado"
-    });
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+
+
 
 
 // =====================================================
