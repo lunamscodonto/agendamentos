@@ -939,6 +939,38 @@ app.delete("/procedimentos/:id", async (req, res) => {
         });
     }
 });
+
+
+// =====================================================
+// CONVERTER DATA/HORA DA CLÍNICA - BRASIL
+// =====================================================
+
+function converterDataHoraBrasil(dataHora) {
+
+    const valor = String(dataHora || "").trim();
+
+    // datetime-local enviado pelo navegador:
+    // 2026-09-08T08:00
+    //
+    // Interpretamos explicitamente como horário de Brasília (UTC-3)
+    if (
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(valor)
+    ) {
+        return new Date(
+            `${valor}:00-03:00`
+        );
+    }
+
+    // Caso já venha com fuso/ISO completo
+    return new Date(valor);
+}
+
+
+
+
+
+
+
 // =====================================================
 // CADASTRAR AGENDAMENTO
 // =====================================================
@@ -975,15 +1007,13 @@ app.post("/agendamentos", async (req, res) => {
 
 
         const dataAgendamento =
-            new Date(data_hora);
+    converterDataHoraBrasil(data_hora);
 
-
-        if (isNaN(dataAgendamento.getTime())) {
-
-            return res.status(400).json({
-                erro: "Data e horário inválidos."
-            });
-        }
+if (isNaN(dataAgendamento.getTime())) {
+    return res.status(400).json({
+        erro: "Data e horário inválidos."
+    });
+}
 
 
         // ---------------------------------------------
