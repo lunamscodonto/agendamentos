@@ -132,12 +132,12 @@ button:disabled {
 <body>
 <section class="card">
     <h1>🔐 Entrar no sistema</h1>
-    <p>Informe seu e-mail e PIN numérico.</p>
+    <p>Informe seu nome de usuário e PIN numérico.</p>
 
     <form id="formLogin">
         <div class="campo">
-            <label for="email">E-mail</label>
-            <input id="email" type="email" required autocomplete="email">
+            <label for="nome">Nome de usuário</label>
+            <input id="nome" type="text" maxlength="100" required autocomplete="username" placeholder="Digite seu nome de usuário">
         </div>
 
         <div class="campo">
@@ -155,6 +155,6 @@ button:disabled {
     </div>
 </section>
 
-<script src="login.js"></script>
+<script src="login.js?v=20260912-nome-v2"></script>
 </body>
 </html>

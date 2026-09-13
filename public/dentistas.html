@@ -16,50 +16,92 @@
         href="style.css"
     >
 
-    <style>
-        /* =====================================================
-           DENTISTAS — TELA INTEGRADA AO FUNDO AZUL
-           Mantém todas as funções do dentistas.js
-        ===================================================== */
+<style>
+.dentista-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:18px;
+    padding:16px 0;
+    border-bottom:1px solid #e5e7eb;
+}
+.dentista-item:last-child{border-bottom:0}
+.dentista-info{
+    color:#475569;
+    line-height:1.5;
+}
+.dentista-info strong{
+    display:block;
+    color:#173b5f;
+    font-size:18px;
+    margin-bottom:4px;
+}
+.dentista-acoes{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-shrink:0;
+}
+.badge-ativo{
+    background:#dcfce7;
+    color:#15803d;
+    border-radius:999px;
+    padding:7px 11px;
+    font-weight:700;
+    font-size:13px;
+}
+@media(max-width:650px){
+    .dentista-item{flex-direction:column}
+    .dentista-acoes{width:100%;justify-content:flex-end}
+}
+</style>
 
-        body {
-            background: #5aa9e6 !important;
-        }
 
-        main.container {
-            background: transparent !important;
-        }
-
-        main.container .card {
-            background: transparent !important;
-            box-shadow: none !important;
-            border: none !important;
-        }
-
-        main.container .card-header,
-        main.container .lista-header {
-            background: transparent !important;
-        }
-
-        main.container .form-grid,
-        main.container .campo,
-        main.container .acoes,
-        main.container .lista-pacientes {
-            background: transparent !important;
-        }
-
-        main.container input,
-        main.container textarea {
-            background: rgba(255,255,255,0.08) !important;
-            color: #123b63 !important;
-            border-color: rgba(255,255,255,0.55) !important;
-        }
-
-        main.container input::placeholder,
-        main.container textarea::placeholder {
-            color: rgba(18,59,99,0.72) !important;
-        }
-    </style>
+<style>
+/* ===== Paleta MSC - Odonto | igual ao módulo Usuários ===== */
+:root{
+    --msc-fundo:#55A6EF;
+    --msc-card:#AED6F7;
+    --msc-texto:#123B60;
+    --msc-botao:#2864DF;
+}
+html, body{
+    background:var(--msc-fundo) !important;
+}
+body{
+    color:var(--msc-texto) !important;
+}
+.topo{
+    background:var(--msc-fundo) !important;
+}
+.container .card{
+    background:var(--msc-card) !important;
+    border-color:rgba(255,255,255,.65) !important;
+}
+.card h1, .card h2, .card h3, .card-header h2, .lista-header h2,
+.card label, .card p{
+    color:var(--msc-texto);
+}
+.card input, .card select, .card textarea, #pesquisa{
+    background:#fff !important;
+    border-color:#d7e4f0 !important;
+}
+.btn-editar-dentista{
+    background:var(--msc-botao) !important;
+}
+.dentista-info strong{
+    color:var(--msc-texto) !important;
+}
+.dentista-info{
+    color:#47647d !important;
+}
+.dentista-item{
+    border-bottom-color:rgba(255,255,255,.7) !important;
+}
+.estado-vazio{
+    color:#47647d !important;
+}
+</style>
 
 </head>
 
@@ -85,6 +127,8 @@
     </div>
 </div>
 
+
+        <div class="cards-profissionais">
 
         <section class="card">
 
@@ -122,14 +166,14 @@
                     <div class="campo">
 
                         <label for="cro">
-                            CRO
+                            CRO *
                         </label>
 
                         <input
                             type="text"
                             id="cro"
                             placeholder="Ex.: CRO-RJ 12345"
-                        >
+                         required>
 
                     </div>
 
@@ -137,14 +181,14 @@
                     <div class="campo">
 
                         <label for="especialidade">
-                            Especialidade
+                            Especialidade *
                         </label>
 
                         <input
                             type="text"
                             id="especialidade"
                             placeholder="Ex.: Ortodontia"
-                        >
+                         required>
 
                     </div>
 
@@ -152,14 +196,14 @@
                     <div class="campo">
 
                         <label for="telefone">
-                            Telefone
+                            Telefone *
                         </label>
 
                         <input
                             type="text"
                             id="telefone"
                             placeholder="(00) 00000-0000"
-                        >
+                         required>
 
                     </div>
 
@@ -167,14 +211,14 @@
                     <div class="campo">
 
                         <label for="email">
-                            E-mail
+                            E-mail *
                         </label>
 
                         <input
                             type="email"
                             id="email"
                             placeholder="dentista@email.com"
-                        >
+                         required>
 
                     </div>
 
@@ -240,7 +284,7 @@
                 <input
                     type="text"
                     id="pesquisa"
-                    placeholder="🔎 Pesquisar dentista..."
+                    placeholder="🔎 Pesquisar por nome ou CPF..."
                 >
 
             </div>
@@ -272,6 +316,8 @@
 
         </section>
 
+        </div>
+
     </main>
 
 
@@ -281,7 +327,172 @@
     ></div>
 
 
-    <script src="dentistas.js"></script>
+    
+<div id="modalEditarDentista" class="modal-editar-dentista" aria-hidden="true">
+    <div class="modal-editar-conteudo">
+        <div class="modal-editar-cabecalho">
+            <div>
+                <h2>✏️ Editar profissional</h2>
+                <p>Atualize os dados do profissional.</p>
+            </div>
+            <button type="button" id="fecharModalEditar" class="modal-fechar">×</button>
+        </div>
+
+        <form id="formEditarDentista">
+            <input type="hidden" id="editarDentistaId">
+
+            <div class="form-grid">
+                <div class="campo campo-grande">
+                    <label for="editarNome">Nome completo *</label>
+                    <input type="text" id="editarNome" required>
+                </div>
+
+                <div class="campo">
+                    <label for="editarCro">CRO *</label>
+                    <input type="text" id="editarCro" required>
+                </div>
+
+                <div class="campo">
+                    <label for="editarEspecialidade">Especialidade *</label>
+                    <input type="text" id="editarEspecialidade" required>
+                </div>
+
+                <div class="campo">
+                    <label for="editarTelefone">Telefone *</label>
+                    <input type="text" id="editarTelefone" required>
+                </div>
+
+                <div class="campo">
+                    <label for="editarEmail">E-mail *</label>
+                    <input type="email" id="editarEmail" required>
+                </div>
+
+                <div class="campo campo-completo">
+                    <label for="editarObservacoes">Observações</label>
+                    <textarea id="editarObservacoes" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="acoes">
+                <button type="button" class="btn-secundario" id="cancelarModalEditar">Cancelar</button>
+                <button type="submit" class="btn-principal" id="btnSalvarEdicaoDentista">💾 Salvar alterações</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.modal-editar-dentista{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(15,23,42,.55);
+    z-index:9999;
+}
+.modal-editar-dentista.aberto{display:flex}
+.modal-editar-conteudo{
+    width:min(760px,100%);
+    max-height:90vh;
+    overflow:auto;
+    background:#fff;
+    border-radius:16px;
+    padding:24px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+.modal-editar-cabecalho{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:15px;
+    margin-bottom:18px;
+}
+.modal-editar-cabecalho h2{margin:0 0 5px}
+.modal-editar-cabecalho p{margin:0;color:#64748b}
+.modal-fechar{
+    border:0;
+    background:#eef2f7;
+    border-radius:8px;
+    width:38px;
+    height:38px;
+    font-size:25px;
+    cursor:pointer;
+}
+.btn-editar-dentista{
+    border:0;
+    border-radius:8px;
+    padding:8px 12px;
+    background:#2563eb;
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    white-space:nowrap;
+}
+.btn-editar-dentista:hover{filter:brightness(.95)}
+</style>
+
+<style id="cards-compactos-profissionais">
+/* ===== Layout compacto em duas colunas ===== */
+.cards-profissionais{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 560px));
+    gap:20px;
+    align-items:start;
+    justify-content:center;
+    width:100%;
+}
+
+.cards-profissionais > .card{
+    width:100% !important;
+    box-sizing:border-box;
+    margin:0 !important;
+    padding:18px 20px !important;
+}
+
+/* Reduz espaços internos para deixar o formulário compacto */
+.card-header{
+    margin-bottom:12px !important;
+}
+.form-grid{
+    gap:10px !important;
+}
+.campo{
+    margin-bottom:2px !important;
+}
+.campo label{
+    margin-bottom:5px !important;
+}
+.card textarea{
+    min-height:64px !important;
+}
+.acoes{
+    margin-top:12px !important;
+}
+.lista-header{
+    margin-bottom:12px !important;
+}
+
+@media (max-width:1200px){
+    .cards-profissionais{
+        grid-template-columns:minmax(0, 560px);
+        gap:20px;
+    }
+}
+
+@media (max-width:900px){
+    .cards-profissionais{
+        grid-template-columns:1fr;
+        gap:18px;
+    }
+    .cards-profissionais > .card{
+        padding:16px !important;
+    }
+}
+</style>
+
+<script src="dentistas.js?v=20260912-profissionais-pesquisa-compacto"></script>
 
 </body>
 

@@ -984,6 +984,7 @@ app.post("/agendamentos", async (req, res) => {
             dentista_id,
             procedimento_id,
             data_hora,
+            duracao_minutos,
             observacoes
         } = req.body;
 
@@ -1014,6 +1015,14 @@ if (isNaN(dataAgendamento.getTime())) {
         erro: "Data e horário inválidos."
     });
 }
+
+        const duracaoNumerica = Number(duracao_minutos);
+
+        if (!Number.isFinite(duracaoNumerica) || duracaoNumerica <= 0) {
+            return res.status(400).json({
+                erro: "Informe uma duração válida para o atendimento."
+            });
+        }
 
 
         // ---------------------------------------------
@@ -1093,7 +1102,7 @@ if (isNaN(dataAgendamento.getTime())) {
 
         const fim = new Date(
             inicio.getTime() +
-            procedimento.duracao_minutos * 60 * 1000
+            duracaoNumerica * 60 * 1000
         );
 
 
@@ -1130,7 +1139,8 @@ if (isNaN(dataAgendamento.getTime())) {
                 data_hora,
                 status,
                 valor,
-                procedimento_id
+                procedimento_id,
+                duracao_minutos
             `)
             .eq("dentista_id", dentista_id)
             .gte(
@@ -1175,29 +1185,9 @@ if (isNaN(dataAgendamento.getTime())) {
                 );
 
 
-            let duracaoExistente = 30;
-
-
-            const {
-                data: procedimentoExistente
-            } = await supabase
-                .from("procedimentos")
-                .select("duracao_minutos")
-                .eq(
-                    "id",
-                    agendamento.procedimento_id
-                )
-                .single();
-
-
-            if (
-                procedimentoExistente &&
-                procedimentoExistente.duracao_minutos
-            ) {
-
-                duracaoExistente =
-                    procedimentoExistente.duracao_minutos;
-            }
+            // A duração do atendimento é a duração escolhida no agendamento.
+            // Nunca usar a duração cadastrada no procedimento como substituta.
+            let duracaoExistente = Number(agendamento.duracao_minutos) || 30;
 
 
             const fimExistente =
@@ -1240,6 +1230,7 @@ if (isNaN(dataAgendamento.getTime())) {
                     procedimento_id,
                     data_hora:
                         dataAgendamento.toISOString(),
+                    duracao_minutos: duracaoNumerica,
                     status: "agendado",
                     valor: procedimento.valor,
                     observacoes

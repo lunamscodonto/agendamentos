@@ -46,6 +46,9 @@ const dataHoraInput =
 const observacoesInput =
     document.getElementById("observacoes");
 
+const duracaoInput =
+    document.getElementById("duracao_minutos");
+
 const resumoProcedimento =
     document.getElementById("resumoProcedimento");
 
@@ -64,7 +67,6 @@ let dentistas = [];
 let procedimentos = [];
 
 let agendamentos = [];
-let retornos = [];
 
 
 // =====================================================
@@ -277,7 +279,7 @@ async function carregarProcedimentos() {
             procedimento.id;
 
         option.textContent =
-            `${procedimento.nome} - ${formatarMoeda(procedimento.valor)}`;
+            procedimento.nome;
 
         procedimentoSelect.appendChild(option);
 
@@ -292,28 +294,49 @@ async function carregarProcedimentos() {
 
 async function carregarAgendamentosMes() {
 
-    const primeiroDia = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
-    const ultimoDia = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 1);
-    const inicio = formatarISO(primeiroDia);
-    const fim = formatarISO(ultimoDia);
+    const primeiroDia =
+        new Date(
+            dataAtual.getFullYear(),
+            dataAtual.getMonth(),
+            1
+        );
 
-    const respostaAgendamentos = await fetch(`/agendamentos?data_inicio=${encodeURIComponent(inicio)}&data_fim=${encodeURIComponent(fim)}`);
-    const resultadoAgendamentos = await respostaAgendamentos.json();
-    agendamentos = resultadoAgendamentos.agendamentos || [];
 
-    const dataInicioRetornos = formatarDataISO(primeiroDia);
-    const dataFimRetornos = formatarDataISO(new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0));
-    const respostaRetornos = await fetch(`/retornos?data_inicio=${encodeURIComponent(dataInicioRetornos)}&data_fim=${encodeURIComponent(dataFimRetornos)}`);
-    if (!respostaRetornos.ok) throw new Error('Não foi possível carregar os retornos na Agenda.');
-    const resultadoRetornos = await respostaRetornos.json();
-    retornos = resultadoRetornos.retornos || [];
+    const ultimoDia =
+        new Date(
+            dataAtual.getFullYear(),
+            dataAtual.getMonth() + 1,
+            1
+        );
+
+
+    const inicio =
+        formatarISO(primeiroDia);
+
+
+    const fim =
+        formatarISO(ultimoDia);
+
+
+    const resposta =
+        await fetch(
+            `/agendamentos?data_inicio=${encodeURIComponent(inicio)}&data_fim=${encodeURIComponent(fim)}`
+        );
+
+
+    const resultado =
+        await resposta.json();
+
+
+    agendamentos =
+        resultado.agendamentos || [];
 
 }
+
 
 // =====================================================
 // CALENDÁRIO
 // =====================================================
-
 
 async function gerarCalendario() {
 
@@ -523,104 +546,502 @@ async function selecionarData(data) {
 // =====================================================
 
 async function mostrarHorarios(data) {
-    dataSelecionada.textContent = formatarData(data);
+
+    dataSelecionada.textContent =
+        formatarData(data);
+
     horarios.innerHTML = "";
 
-    const inicio = new Date(data.getFullYear(), data.getMonth(), data.getDate());
-    const fim = new Date(data.getFullYear(), data.getMonth(), data.getDate() + 1);
 
-    const respostaAgendamentos = await fetch(`/agendamentos?data_inicio=${encodeURIComponent(formatarISO(inicio))}&data_fim=${encodeURIComponent(formatarISO(fim))}`);
-    if (!respostaAgendamentos.ok) throw new Error("Não foi possível carregar os agendamentos.");
-    const resultadoAgendamentos = await respostaAgendamentos.json();
-    const agendamentosDia = resultadoAgendamentos.agendamentos || [];
+    const inicio =
+        new Date(
+            data.getFullYear(),
+            data.getMonth(),
+            data.getDate()
+        );
 
-    const dataISO = formatarDataISO(data);
-    const respostaRetornos = await fetch(`/retornos?data_inicio=${encodeURIComponent(dataISO)}&data_fim=${encodeURIComponent(dataISO)}`);
-    if (!respostaRetornos.ok) throw new Error("Não foi possível carregar os retornos.");
-    const resultadoRetornos = await respostaRetornos.json();
-    const retornosDia = resultadoRetornos.retornos || [];
 
-    const dentistaSelecionado = filtroDentista.value;
-    const agendamentosFiltrados = dentistaSelecionado ? agendamentosDia.filter(a => String(a.dentista_id) === String(dentistaSelecionado)) : agendamentosDia;
-    const retornosFiltrados = dentistaSelecionado ? retornosDia.filter(r => String(r.dentista_id || "") === String(dentistaSelecionado)) : retornosDia;
+    const fim =
+        new Date(
+            data.getFullYear(),
+            data.getMonth(),
+            data.getDate() + 1
+        );
 
-    const inicioFuncionamento = 8 * 60;
-    const fimFuncionamento = 18 * 60;
 
-    for (let minutos = inicioFuncionamento; minutos < fimFuncionamento; minutos += 30) {
-        const hora = Math.floor(minutos / 60);
-        const minuto = minutos % 60;
-        const horarioTexto = `${String(hora).padStart(2,"0")}:${String(minuto).padStart(2,"0")}`;
-        const horarioData = new Date(data.getFullYear(), data.getMonth(), data.getDate(), hora, minuto);
+    // Os agendamentos do mês já foram carregados por gerarCalendario().
+    // Filtramos o dia diretamente no navegador para evitar problemas de
+    // fuso horário nos limites data_inicio/data_fim da consulta ao banco.
+    const agendamentosDia =
+        agendamentos.filter(agendamento => {
+            if (agendamento.status === "cancelado") {
+                return false;
+            }
 
-        const agendamento = encontrarAgendamento(horarioData, agendamentosFiltrados);
-        const retorno = agendamento ? null : encontrarRetorno(horarioData, retornosFiltrados);
+            const dataAgendamento =
+                new Date(agendamento.data_hora);
 
-        const elemento = document.createElement("div");
-        elemento.className = "horario";
-        const horaElemento = document.createElement("div");
-        horaElemento.className = "hora";
-        horaElemento.textContent = horarioTexto;
-        elemento.appendChild(horaElemento);
+            return mesmoDia(data, dataAgendamento);
+        });
+
+const dentistaSelecionado =
+    filtroDentista.value;
+
+
+const agendamentosFiltrados =
+    dentistaSelecionado
+        ? agendamentosDia.filter(
+            agendamento =>
+                agendamento.dentista_id ===
+                dentistaSelecionado
+          )
+        : agendamentosDia;
+
+
+    // ---------------------------------------------
+    // HORÁRIO DE FUNCIONAMENTO
+    // ---------------------------------------------
+
+    const inicioFuncionamento =
+        8 * 60;
+
+    const fimFuncionamento =
+        18 * 60;
+
+
+    // ---------------------------------------------
+    // GERAR HORÁRIOS DE 30 EM 30 MINUTOS
+    // ---------------------------------------------
+
+    for (
+        let minutos = inicioFuncionamento;
+        minutos < fimFuncionamento;
+        minutos += 30
+    ) {
+
+        const hora =
+            Math.floor(
+                minutos / 60
+            );
+
+        const minuto =
+            minutos % 60;
+
+
+        const horarioTexto =
+            `${String(hora).padStart(2, "0")}:${String(minuto).padStart(2, "0")}`;
+
+
+        const horarioData =
+            new Date(
+                data.getFullYear(),
+                data.getMonth(),
+                data.getDate(),
+                hora,
+                minuto
+            );
+
+
+        // -----------------------------------------
+        // VERIFICAR SE EXISTE AGENDAMENTO
+        // -----------------------------------------
+
+        const agendamento =
+    encontrarAgendamento(
+        horarioData,
+        agendamentosFiltrados
+    );
+
+
+        const elemento =
+            document.createElement("div");
+
+
+        elemento.className =
+            "horario";
+
+
+        const horaElemento =
+            document.createElement("div");
+
+        horaElemento.className =
+            "hora";
+
+        horaElemento.textContent =
+            horarioTexto;
+
+
+        elemento.appendChild(
+            horaElemento
+        );
+
+
+        // -----------------------------------------
+        // HORÁRIO OCUPADO
+        // -----------------------------------------
 
         if (agendamento) {
-            elemento.classList.add("horario-ocupado");
-            const info = document.createElement("div");
-            info.className = "agendamento-info";
-            const nomePaciente = agendamento.pacientes?.nome || "Paciente";
-            const nomeDentista = agendamento.dentistas?.nome || "Dentista";
-            const nomeProcedimento = agendamento.procedimentos?.nome || "Procedimento";
-            const duracao = agendamento.procedimentos?.duracao_minutos || 30;
-            const status = agendamento.status || "agendado";
-            const statusTexto = {agendado:"🟡 Agendado", confirmado:"🔵 Confirmado", atendido:"🟢 Atendido", cancelado:"🔴 Cancelado", faltou:"⚫ Faltou"}[status] || "🟡 Agendado";
-            info.innerHTML = `<strong>${escaparHTML(nomePaciente)}</strong><small>${escaparHTML(nomeProcedimento)} • ${escaparHTML(nomeDentista)} • ${duracao} min</small><small>${statusTexto}</small>`;
-            elemento.appendChild(info);
 
-            const controleStatus = document.createElement("div");
-            controleStatus.style.display="flex"; controleStatus.style.alignItems="center"; controleStatus.style.gap="8px"; controleStatus.style.marginTop="8px";
-            const selectStatus = document.createElement("select");
-            selectStatus.style.padding="6px"; selectStatus.style.borderRadius="6px"; selectStatus.style.border="1px solid #d1d5db";
-            [["agendado","🟡 Agendado"],["confirmado","🔵 Confirmado"],["atendido","🟢 Atendido"],["faltou","⚫ Faltou"],["cancelado","🔴 Cancelado"]].forEach(([valor,texto])=>{const o=document.createElement("option");o.value=valor;o.textContent=texto;o.selected=valor===status;selectStatus.appendChild(o);});
-            const salvar=document.createElement("button"); salvar.type="button"; salvar.textContent="Salvar"; salvar.style.padding="6px 10px"; salvar.style.fontSize="12px"; salvar.style.background="#2563eb"; salvar.style.color="white"; salvar.style.border="none"; salvar.style.borderRadius="6px"; salvar.style.cursor="pointer";
-            salvar.addEventListener("click",()=>alterarStatusAgendamento(agendamento.id,selectStatus.value));
-            controleStatus.append(selectStatus,salvar); info.appendChild(controleStatus);
-            const acoesWhatsApp = document.createElement("div");
-            acoesWhatsApp.style.display = "flex";
-            acoesWhatsApp.style.flexDirection = "column";
-            acoesWhatsApp.style.gap = "6px";
+            elemento.classList.add(
+                "horario-ocupado"
+            );
 
-            acoesWhatsApp.appendChild(criarBotaoWhatsApp(agendamento));
 
-            const cancelar=document.createElement("button");
-            cancelar.className="btn-excluir";
-            cancelar.textContent="Cancelar";
-            cancelar.addEventListener("click",()=>cancelarAgendamento(agendamento.id));
+            const info =
+                document.createElement("div");
 
-            acoesWhatsApp.appendChild(cancelar);
-            elemento.appendChild(acoesWhatsApp);
-        } else if (retorno) {
-            elemento.classList.add("horario-ocupado");
-            const info = document.createElement("div"); info.className="agendamento-info";
-            const nomePaciente = retorno.pacientes?.nome || "Paciente";
-            const nomeDentista = retorno.dentistas?.nome || "Dentista não informado";
-            const motivo = retorno.motivo || "Retorno";
-            const status = retorno.status || "pendente";
-            const statusTexto = {pendente:"🟡 Retorno pendente", realizado:"🟢 Retorno realizado", cancelado:"🔴 Retorno cancelado"}[status] || "🟡 Retorno pendente";
-            info.innerHTML = `<strong>↩️ ${escaparHTML(nomePaciente)}</strong><small>${escaparHTML(motivo)} • ${escaparHTML(nomeDentista)}</small><small>${statusTexto}</small>`;
-            elemento.appendChild(info);
-        } else {
-            elemento.classList.add("horario-livre");
-            const info=document.createElement("div"); info.className="agendamento-info"; info.innerHTML=`<strong>Horário disponível</strong><small>Clique em Agendar para escolher o procedimento.</small>`; elemento.appendChild(info);
-            const botao=document.createElement("button"); botao.className="btn-agendar-hora"; botao.textContent="Agendar"; botao.addEventListener("click",()=>abrirModal(horarioData)); elemento.appendChild(botao);
-        }
-        horarios.appendChild(elemento);
+            info.className =
+                "agendamento-info";
+
+
+            const nomePaciente =
+                agendamento.pacientes?.nome
+                || "Paciente";
+
+
+            const nomeDentista =
+                agendamento.dentistas?.nome
+                || "Dentista";
+
+
+            const nomeProcedimento =
+                agendamento.procedimentos?.nome
+                || "Procedimento";
+
+
+            const duracao =
+                Number(agendamento.duracao_minutos) ||
+                30;
+const status =
+    agendamento.status || "agendado";
+
+
+const statusTexto = {
+
+    agendado: "🟡 Agendado",
+
+    confirmado: "🔵 Confirmado",
+
+    atendido: "🟢 Atendido",
+
+    cancelado: "🔴 Cancelado",
+
+    faltou: "⚫ Faltou"
+
+}[status] || "🟡 Agendado";
+
+
+
+            info.innerHTML = `
+    <strong>
+        ${escaparHTML(nomePaciente)}
+    </strong>
+
+    <small>
+        ${escaparHTML(nomeProcedimento)}
+        •
+        ${escaparHTML(nomeDentista)}
+        •
+        ${duracao} min
+    </small>
+
+    <small>
+        ${statusTexto}
+    </small>
+`;
+const controleStatus =
+    document.createElement("div");
+
+controleStatus.style.display =
+    "flex";
+
+controleStatus.style.alignItems =
+    "center";
+
+controleStatus.style.gap =
+    "8px";
+
+controleStatus.style.marginTop =
+    "8px";
+
+
+const selectStatus =
+    document.createElement("select");
+
+
+selectStatus.style.padding =
+    "6px";
+
+selectStatus.style.borderRadius =
+    "6px";
+
+selectStatus.style.border =
+    "1px solid #d1d5db";
+
+
+const statusOpcoes = [
+
+    {
+        valor: "agendado",
+        texto: "🟡 Agendado"
+    },
+
+    {
+        valor: "confirmado",
+        texto: "🔵 Confirmado"
+    },
+
+    {
+        valor: "atendido",
+        texto: "🟢 Atendido"
+    },
+
+    {
+        valor: "faltou",
+        texto: "⚫ Faltou"
+    },
+
+    {
+        valor: "cancelado",
+        texto: "🔴 Cancelado"
     }
-}
 
+];
+
+
+statusOpcoes.forEach(opcao => {
+
+    const option =
+        document.createElement("option");
+
+    option.value =
+        opcao.valor;
+
+    option.textContent =
+        opcao.texto;
+
+
+    if (
+        opcao.valor === status
+    ) {
+
+        option.selected = true;
+
+    }
+
+
+    selectStatus.appendChild(
+        option
+    );
+
+});
+
+
+const botaoSalvarStatus =
+    document.createElement("button");
+
+
+botaoSalvarStatus.type =
+    "button";
+
+botaoSalvarStatus.textContent =
+    "Salvar";
+
+
+botaoSalvarStatus.style.padding =
+    "6px 10px";
+
+
+botaoSalvarStatus.style.fontSize =
+    "12px";
+
+
+botaoSalvarStatus.style.background =
+    "#2563eb";
+
+
+botaoSalvarStatus.style.color =
+    "white";
+
+
+botaoSalvarStatus.style.border =
+    "none";
+
+
+botaoSalvarStatus.style.borderRadius =
+    "6px";
+
+
+botaoSalvarStatus.style.cursor =
+    "pointer";
+
+
+botaoSalvarStatus.addEventListener(
+    "click",
+    async () => {
+
+        await alterarStatusAgendamento(
+            agendamento.id,
+            selectStatus.value
+        );
+
+    }
+);
+
+
+controleStatus.appendChild(
+    selectStatus
+);
+
+
+controleStatus.appendChild(
+    botaoSalvarStatus
+);
+
+
+info.appendChild(
+    controleStatus
+);
+
+
+            elemento.appendChild(
+                info
+            );
+
+
+            const cancelar =
+                document.createElement("button");
+
+
+            cancelar.className =
+                "btn-excluir";
+
+
+            cancelar.textContent =
+                "Cancelar";
+
+
+            cancelar.addEventListener(
+                "click",
+                () =>
+                    cancelarAgendamento(
+                        agendamento.id
+                    )
+            );
+
+
+            elemento.appendChild(
+                cancelar
+            );
+
+
+            const whatsapp =
+                document.createElement("button");
+
+            whatsapp.type =
+                "button";
+
+            whatsapp.className =
+                "btn-whatsapp-agendamento";
+
+            whatsapp.textContent =
+                "📱 WhatsApp";
+
+            whatsapp.style.display = "block";
+            whatsapp.style.width = "100%";
+            whatsapp.style.marginTop = "8px";
+            whatsapp.style.padding = "7px 10px";
+            whatsapp.style.background = "#25D366";
+            whatsapp.style.color = "white";
+            whatsapp.style.border = "none";
+            whatsapp.style.borderRadius = "6px";
+            whatsapp.style.cursor = "pointer";
+            whatsapp.style.fontSize = "12px";
+
+            whatsapp.addEventListener(
+                "click",
+                () => enviarWhatsAppAgendamento(agendamento)
+            );
+
+            elemento.appendChild(
+                whatsapp
+            );
+
+        }
+
+        // -----------------------------------------
+        // HORÁRIO LIVRE
+        // -----------------------------------------
+
+        else {
+
+            elemento.classList.add(
+                "horario-livre"
+            );
+
+
+            const info =
+                document.createElement("div");
+
+            info.className =
+                "agendamento-info";
+
+
+            info.innerHTML = `
+                <strong>
+                    Horário disponível
+                </strong>
+
+                <small>
+                    Clique em Agendar para escolher
+                    o procedimento.
+                </small>
+            `;
+
+
+            elemento.appendChild(
+                info
+            );
+
+
+            const botao =
+                document.createElement("button");
+
+
+            botao.className =
+                "btn-agendar-hora";
+
+
+            botao.textContent =
+                "Agendar";
+
+
+            botao.addEventListener(
+                "click",
+                () =>
+                    abrirModal(
+                        horarioData
+                    )
+            );
+
+
+            elemento.appendChild(
+                botao
+            );
+
+        }
+
+
+        horarios.appendChild(
+            elemento
+        );
+
+    }
+
+}
 // =====================================================
 // ENCONTRAR AGENDAMENTO
 // =====================================================
-
 
 function encontrarAgendamento(
     horario,
@@ -645,8 +1066,8 @@ function encontrarAgendamento(
 
 
             const duracao =
-                agendamento.procedimentos
-                    ?.duracao_minutos || 30;
+                Number(agendamento.duracao_minutos) ||
+                30;
 
 
             const fim =
@@ -684,14 +1105,63 @@ function encontrarAgendamento(
 // VERIFICAR DIA OCUPADO
 // =====================================================
 
-function existeAgendamentoNoDia(data) {
-    const possuiAgendamento = agendamentos.some(agendamento => {
-        if (agendamento.status === "cancelado") return false;
-        return mesmoDia(data, new Date(agendamento.data_hora));
-    });
-    if (possuiAgendamento) return true;
-    const dataISO = formatarDataISO(data);
-    return retornos.some(retorno => retorno.status !== "cancelado" && String(retorno.data_retorno) === dataISO);
+function existeAgendamentoNoDia(
+    data
+) {
+
+    const dentistaSelecionado =
+        filtroDentista.value;
+
+    return agendamentos.some(
+        agendamento => {
+
+            // Registros cancelados não ocupam o calendário.
+            const status =
+                String(agendamento.status || "agendado")
+                    .trim()
+                    .toLowerCase();
+
+            if (status === "cancelado") {
+                return false;
+            }
+
+            // Só considera um agendamento válido quando ele possui
+            // os vínculos básicos e uma data/hora válida. Isso evita
+            // que registros incompletos/orfãos deixem uma bolinha
+            // no calendário sem que exista um atendimento consultável.
+            if (
+                !agendamento.id ||
+                !agendamento.paciente_id ||
+                !agendamento.dentista_id ||
+                !agendamento.procedimento_id ||
+                !agendamento.data_hora
+            ) {
+                return false;
+            }
+
+            if (
+                dentistaSelecionado &&
+                String(agendamento.dentista_id) !==
+                    String(dentistaSelecionado)
+            ) {
+                return false;
+            }
+
+            const dataAgendamento =
+                new Date(agendamento.data_hora);
+
+            if (Number.isNaN(dataAgendamento.getTime())) {
+                return false;
+            }
+
+            return mesmoDia(
+                data,
+                dataAgendamento
+            );
+
+        }
+    );
+
 }
 
 
@@ -699,13 +1169,27 @@ function existeAgendamentoNoDia(data) {
 // ABRIR MODAL
 // =====================================================
 
-
 function abrirModal(horario) {
+
+    const agora = new Date();
+
+    if (horario instanceof Date && horario.getTime() < agora.getTime()) {
+        mostrarMensagem(
+            "Não é possível realizar agendamento em data ou horário anterior ao momento atual.",
+            true
+        );
+
+        return;
+    }
+
+    atualizarDataHoraMinima();
 
     modal.classList.add("aberto");
 
     dataHoraInput.value =
         formatarDateTimeLocal(horario);
+
+    atualizarDataHoraMinima();
 
 filtroDentista.addEventListener(
     "change",
@@ -776,22 +1260,41 @@ procedimentoSelect.addEventListener(
             <strong>
                 ${escaparHTML(procedimento.nome)}
             </strong>
-
-            <br>
-
-            💰
-            ${formatarMoeda(procedimento.valor)}
-
-            <br>
-
-            ⏱️
-            ${procedimento.duracao_minutos}
-            minutos
         `;
 
     }
 );
 
+
+// =====================================================
+// IMPEDIR AGENDAMENTOS NO PASSADO
+// =====================================================
+
+function obterDataHoraMinima() {
+
+    const agora = new Date();
+
+    const ano = agora.getFullYear();
+    const mes = String(agora.getMonth() + 1).padStart(2, "0");
+    const dia = String(agora.getDate()).padStart(2, "0");
+    const hora = String(agora.getHours()).padStart(2, "0");
+    const minuto = String(agora.getMinutes()).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}T${hora}:${minuto}`;
+}
+
+function atualizarDataHoraMinima() {
+
+    if (!dataHoraInput) {
+        return;
+    }
+
+    dataHoraInput.min = obterDataHoraMinima();
+}
+
+atualizarDataHoraMinima();
+
+setInterval(atualizarDataHoraMinima, 30000);
 
 // =====================================================
 // SALVAR AGENDAMENTO
@@ -803,6 +1306,37 @@ formAgendamento.addEventListener(
 
         evento.preventDefault();
 
+        // Não permite agendamento no passado, inclusive horário anterior
+        // ao momento atual quando a data escolhida for hoje.
+        const dataHoraSelecionada = new Date(dataHoraInput.value);
+
+        if (
+            !dataHoraInput.value ||
+            isNaN(dataHoraSelecionada.getTime()) ||
+            dataHoraSelecionada.getTime() < Date.now()
+        ) {
+            atualizarDataHoraMinima();
+
+            mostrarMensagem(
+                "Não é possível agendar uma data ou horário anterior ao momento atual.",
+                true
+            );
+
+            return;
+        }
+
+
+        const pacienteSelecionado = pacientes.find(
+            paciente =>
+                String(paciente.id) ===
+                String(pacienteSelect.value)
+        );
+
+        const dentistaSelecionado = dentistas.find(
+            dentista =>
+                String(dentista.id) ===
+                String(dentistaSelect.value)
+        );
 
         const dados = {
 
@@ -817,6 +1351,10 @@ formAgendamento.addEventListener(
 
             data_hora:
                 dataHoraInput.value,
+
+            ...(duracaoInput?.value
+                ? { duracao_minutos: Number(duracaoInput.value) }
+                : {}),
 
             observacoes:
                 observacoesInput.value.trim()
@@ -852,10 +1390,16 @@ const inicio =
     );
 
 
+const duracaoSelecionada =
+    Number(duracaoInput?.value) ||
+    Number(procedimentoSelecionado.duracao_minutos) ||
+    30;
+
+
 const fim =
     new Date(
         inicio.getTime() +
-        procedimentoSelecionado.duracao_minutos *
+        duracaoSelecionada *
         60 *
         1000
     );
@@ -875,12 +1419,20 @@ horaFechamento.setHours(
 if (fim > horaFechamento) {
 
     mostrarMensagem(
-        `Este procedimento dura ${procedimentoSelecionado.duracao_minutos} minutos e ultrapassa o horário de funcionamento da clínica.`,
+        `Este atendimento dura ${duracaoSelecionada} minutos e ultrapassa o horário de funcionamento da clínica.`,
         true
     );
 
     return;
 }
+        // Abre uma janela do WhatsApp a partir do clique do usuário.
+        // Ela só recebe a mensagem depois que o agendamento for salvo.
+        let janelaWhatsApp = null;
+
+        if (pacienteSelecionado?.telefone) {
+            janelaWhatsApp = window.open("about:blank", "_blank");
+        }
+
         try {
 
             const resposta =
@@ -916,38 +1468,48 @@ if (fim > horaFechamento) {
             }
 
 
-            mostrarMensagem(
-                "Agendamento criado com sucesso!"
-            );
+            // =====================================================
+            // WHATSAPP — CONFIRMAÇÃO DO AGENDAMENTO
+            // =====================================================
+            if (janelaWhatsApp && pacienteSelecionado?.telefone) {
+                const telefone = String(pacienteSelecionado.telefone)
+                    .replace(/\D/g, "");
 
-            // Oferece a confirmação pelo WhatsApp usando os mesmos
-            // dados escolhidos no formulário.
-            const agendamentoCriado = {
-                ...(resultado.agendamento || resultado),
-                paciente_id: dados.paciente_id,
-                dentista_id: dados.dentista_id,
-                procedimento_id: dados.procedimento_id,
-                data_hora: dados.data_hora,
-                pacientes: pacientes.find(p => String(p.id) === String(dados.paciente_id)),
-                dentistas: dentistas.find(d => String(d.id) === String(dados.dentista_id))
-            };
+                const numeroWhatsApp = telefone.startsWith("55")
+                    ? telefone
+                    : `55${telefone}`;
 
-            const telefonePaciente = obterTelefonePaciente(agendamentoCriado.pacientes);
-
-            if (telefonePaciente) {
-                const enviarWhatsApp = confirm(
-                    "Agendamento criado com sucesso! Deseja enviar agora a confirmação pelo WhatsApp?"
+                const dataAgendamento = new Date(dataHoraInput.value);
+                const dataFormatada = dataAgendamento.toLocaleDateString(
+                    "pt-BR",
+                    { day: "2-digit", month: "2-digit", year: "numeric" }
+                );
+                const horarioFormatado = dataAgendamento.toLocaleTimeString(
+                    "pt-BR",
+                    { hour: "2-digit", minute: "2-digit" }
                 );
 
-                if (enviarWhatsApp) {
-                    abrirWhatsAppAgendamento(agendamentoCriado);
-                }
-            } else {
-                mostrarMensagem(
-                    "Agendamento criado. O paciente não possui telefone/WhatsApp cadastrado.",
-                    true
-                );
+                const mensagemWhatsApp =
+                    `Olá, ${pacienteSelecionado.nome}!\n\n` +
+                    `Seu agendamento na Clínica Odontológica foi confirmado.\n\n` +
+                    `Data: ${dataFormatada}\n` +
+                    `Horário: ${horarioFormatado}\n` +
+                    `Dentista: ${dentistaSelecionado?.nome || "Não informado"}\n\n` +
+                    `Aguardamos você!`;
+
+                const urlWhatsApp =
+                    `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagemWhatsApp)}`;
+
+                janelaWhatsApp.location.href = urlWhatsApp;
+            } else if (janelaWhatsApp) {
+                janelaWhatsApp.close();
             }
+
+            mostrarMensagem(
+                pacienteSelecionado?.telefone
+                    ? "Agendamento criado! Abrindo WhatsApp..."
+                    : "Agendamento criado com sucesso! O paciente não possui telefone cadastrado."
+            );
 
 
             fecharModalAgenda();
@@ -967,6 +1529,10 @@ if (fim > horaFechamento) {
 
         } catch (erro) {
 
+            if (janelaWhatsApp && !janelaWhatsApp.closed) {
+                janelaWhatsApp.close();
+            }
+
             console.error(
                 erro
             );
@@ -981,6 +1547,79 @@ if (fim > horaFechamento) {
 
     }
 );
+
+
+// =====================================================
+// REENVIAR CONFIRMAÇÃO PELO WHATSAPP
+// =====================================================
+
+function enviarWhatsAppAgendamento(agendamento) {
+
+    const paciente = agendamento.pacientes;
+    const dentista = agendamento.dentistas;
+
+    if (!paciente?.telefone) {
+        mostrarMensagem(
+            "O paciente não possui telefone cadastrado.",
+            true
+        );
+        return;
+    }
+
+    const telefone = String(paciente.telefone)
+        .replace(/\D/g, "");
+
+    if (!telefone) {
+        mostrarMensagem(
+            "O telefone do paciente é inválido.",
+            true
+        );
+        return;
+    }
+
+    const numeroWhatsApp =
+        telefone.startsWith("55")
+            ? telefone
+            : `55${telefone}`;
+
+    const dataAgendamento =
+        new Date(agendamento.data_hora);
+
+    const dataFormatada =
+        dataAgendamento.toLocaleDateString(
+            "pt-BR",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            }
+        );
+
+    const horarioFormatado =
+        dataAgendamento.toLocaleTimeString(
+            "pt-BR",
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+
+    const mensagemWhatsApp =
+        `Olá, ${paciente.nome}!\n\n` +
+        `Seu agendamento na Clínica Odontológica foi confirmado.\n\n` +
+        `Data: ${dataFormatada}\n` +
+        `Horário: ${horarioFormatado}\n` +
+        `Dentista: ${dentista?.nome || "Não informado"}\n\n` +
+        `Aguardamos você!`;
+
+    const urlWhatsApp =
+        `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagemWhatsApp)}`;
+
+    window.open(
+        urlWhatsApp,
+        "_blank"
+    );
+}
 
 
 // =====================================================
@@ -1173,24 +1812,6 @@ function formatarISO(
 }
 
 
-function formatarDataISO(data) {
-    const ano = data.getFullYear();
-    const mes = String(data.getMonth() + 1).padStart(2,"0");
-    const dia = String(data.getDate()).padStart(2,"0");
-    return `${ano}-${mes}-${dia}`;
-}
-
-function encontrarRetorno(horario, lista) {
-    return lista.find(retorno => {
-        if (retorno.status === "cancelado" || !retorno.data_retorno || !retorno.horario) return false;
-        const [ano, mes, dia] = String(retorno.data_retorno).split("-").map(Number);
-        const [hora, minuto] = String(retorno.horario).slice(0,5).split(":").map(Number);
-        const dataHoraRetorno = new Date(ano, mes - 1, dia, hora || 0, minuto || 0);
-        return horario.getTime() === dataHoraRetorno.getTime();
-    });
-}
-
-
 function formatarDateTimeLocal(
     data
 ) {
@@ -1307,125 +1928,6 @@ function mostrarMensagem(
     );
 
 }
-// =====================================================
-// WHATSAPP — CONFIRMAÇÃO DE AGENDAMENTO
-// =====================================================
-
-function obterTelefonePaciente(paciente) {
-    if (!paciente) return "";
-
-    return (
-        paciente.telefone ||
-        paciente.celular ||
-        paciente.whatsapp ||
-        paciente.telefone_celular ||
-        ""
-    );
-}
-
-function normalizarTelefoneWhatsApp(telefone) {
-    let numero = String(telefone || "").replace(/\D/g, "");
-
-    if (!numero) return "";
-
-    // Para números brasileiros sem DDI, acrescenta 55.
-    if (numero.length === 10 || numero.length === 11) {
-        numero = "55" + numero;
-    }
-
-    return numero;
-}
-
-function formatarDataWhatsApp(dataHora) {
-    const data = new Date(dataHora);
-
-    return data.toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric"
-    });
-}
-
-function formatarHoraWhatsApp(dataHora) {
-    const data = new Date(dataHora);
-
-    return data.toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-}
-
-function obterNomeDentistaAgendamento(agendamento) {
-    return (
-        agendamento?.dentistas?.nome ||
-        dentistas.find(d => String(d.id) === String(agendamento?.dentista_id))?.nome ||
-        "Dentista"
-    );
-}
-
-function obterPacienteAgendamento(agendamento) {
-    return (
-        agendamento?.pacientes ||
-        pacientes.find(p => String(p.id) === String(agendamento?.paciente_id)) ||
-        null
-    );
-}
-
-function abrirWhatsAppAgendamento(agendamento) {
-    const paciente = obterPacienteAgendamento(agendamento);
-    const telefone = normalizarTelefoneWhatsApp(obterTelefonePaciente(paciente));
-
-    if (!telefone) {
-        mostrarMensagem(
-            "O paciente não possui telefone/WhatsApp cadastrado.",
-            true
-        );
-        return;
-    }
-
-    const nomePaciente = paciente?.nome || "Paciente";
-    const nomeDentista = obterNomeDentistaAgendamento(agendamento);
-    const data = formatarDataWhatsApp(agendamento.data_hora);
-    const horario = formatarHoraWhatsApp(agendamento.data_hora);
-
-    /*
-     * Mensagem somente com caracteres comuns (sem emojis).
-     * Isso evita o caractere de substituição "�" em ambientes
-     * que estejam convertendo Unicode/UTF-8 incorretamente.
-     */
-    const mensagemWhatsApp =
-`Olá, ${nomePaciente}!
-
-Seu agendamento na Clínica Odontológica foi confirmado.
-
-Data: ${data}
-Horário: ${horario}
-Dentista: ${nomeDentista}
-
-Aguardamos você!`;
-
-    const url =
-        `https://wa.me/${telefone}?text=${encodeURIComponent(mensagemWhatsApp)}`;
-
-    window.open(url, "_blank", "noopener,noreferrer");
-}
-
-function criarBotaoWhatsApp(agendamento) {
-    const botao = document.createElement("button");
-
-    botao.type = "button";
-    botao.className = "btn-whatsapp";
-    botao.textContent = "📱 WhatsApp";
-    botao.title = "Enviar confirmação do agendamento pelo WhatsApp";
-
-    botao.addEventListener("click", () => {
-        abrirWhatsAppAgendamento(agendamento);
-    });
-
-    return botao;
-}
-
-
 // =====================================================
 // ALTERAR STATUS DO AGENDAMENTO
 // =====================================================

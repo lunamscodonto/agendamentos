@@ -1,5 +1,5 @@
 const formLogin = document.getElementById("formLogin");
-const emailInput = document.getElementById("email");
+const nomeInput = document.getElementById("nome");
 const pinInput = document.getElementById("pin");
 const mensagem = document.getElementById("msg");
 const btnEntrar = document.getElementById("btnLogin");
@@ -7,7 +7,7 @@ const btnEntrar = document.getElementById("btnLogin");
 function mostrarMensagem(texto, tipo = "erro") {
     if (!mensagem) return;
     mensagem.textContent = texto;
-    mensagem.className = `msg ${tipo}`;
+    mensagem.className = `mensagem ${tipo}`;
     mensagem.style.display = "block";
 }
 
@@ -20,12 +20,11 @@ function obterDestino() {
     const params = new URLSearchParams(window.location.search);
     const destino = params.get("redirect");
 
-    // Aceita somente páginas HTML internas do sistema.
+    // Aceita apenas páginas internas do sistema.
     if (destino && /^[a-zA-Z0-9_-]+\.html$/.test(destino)) {
         return destino;
     }
 
-    // Após um login normal, abrir o painel principal.
     return "painel.html";
 }
 
@@ -34,18 +33,17 @@ if (formLogin) {
         evento.preventDefault();
         esconderMensagem();
 
-        const email = emailInput?.value.trim().toLowerCase() || "";
-        const pin = pinInput?.value.trim() || "";
+        const nome = nomeInput.value.trim();
+        const pin = pinInput.value.trim();
 
-        if (!email || !pin) {
-            mostrarMensagem("Informe o e-mail e o PIN.");
+        if (!nome || !pin) {
+            mostrarMensagem("Informe o nome de usuário e o PIN.");
             return;
         }
 
-        if (btnEntrar) {
-            btnEntrar.disabled = true;
-            btnEntrar.textContent = "Entrando...";
-        }
+        btnEntrar.disabled = true;
+        const textoOriginal = btnEntrar.textContent;
+        btnEntrar.textContent = "Entrando...";
 
         try {
             const resposta = await fetch("/auth/login", {
@@ -53,15 +51,13 @@ if (formLogin) {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ email, pin })
+                body: JSON.stringify({ nome, pin })
             });
 
             const dados = await resposta.json().catch(() => ({}));
 
             if (!resposta.ok) {
-                throw new Error(
-                    dados.erro || "Não foi possível realizar o login."
-                );
+                throw new Error(dados.erro || "Não foi possível realizar o login.");
             }
 
             if (!dados.session?.access_token) {
@@ -78,23 +74,13 @@ if (formLogin) {
                 JSON.stringify(dados.usuario || {})
             );
 
-            // Pequena confirmação antes de entrar no painel.
-            mostrarMensagem("Login realizado com sucesso!", "sucesso");
-
-            window.setTimeout(() => {
-                window.location.replace(obterDestino());
-            }, 150);
+            window.location.replace(obterDestino());
 
         } catch (erro) {
-            console.error("Erro no login:", erro);
-            mostrarMensagem(
-                erro.message || "Erro ao realizar o login."
-            );
+            mostrarMensagem(erro.message || "Erro ao realizar o login.");
         } finally {
-            if (btnEntrar) {
-                btnEntrar.disabled = false;
-                btnEntrar.textContent = "Entrar";
-            }
+            btnEntrar.disabled = false;
+            btnEntrar.textContent = textoOriginal;
         }
     });
 }

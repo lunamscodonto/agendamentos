@@ -309,26 +309,147 @@
             color: #123b63 !important;
         }
 
-
-        /* =====================================================
-           WHATSAPP — CONFIRMAÇÃO DE AGENDAMENTO
-        ===================================================== */
-        .btn-whatsapp {
-            padding: 7px 10px;
-            background: #25D366;
-            color: white;
-            font-size: 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .btn-whatsapp:hover {
-            background: #1ebe5d;
-        }
-
     </style>
+
+
+<style>
+/* =====================================================
+   AGENDA — PALETA IGUAL AO MÓDULO PROFISSIONAIS
+   ===================================================== */
+html, body {
+    background: #55A6EF !important;
+    color: #123B60 !important;
+}
+
+body {
+    min-height: 100vh;
+}
+
+main.container {
+    color: #123B60 !important;
+}
+
+/* O card do calendário acompanha exatamente a altura do calendário. */
+.agenda-layout {
+    align-items: start !important;
+}
+
+.agenda-layout > section.card:first-child {
+    height: fit-content !important;
+    align-self: start !important;
+}
+
+.agenda-layout > section.card {
+    background: #AED6F7 !important;
+    color: #123B60 !important;
+    border-radius: 24px !important;
+    box-shadow: 0 12px 28px rgba(18, 59, 96, 0.12) !important;
+    border: none !important;
+    padding: 22px !important;
+}
+
+.agenda-layout h2,
+.agenda-layout h3,
+.agenda-layout label,
+.agenda-layout p,
+.agenda-layout .hora,
+.agenda-layout .dia-semana {
+    color: #123B60 !important;
+}
+
+.mes-navegacao button,
+.btn-agendar-hora {
+    background: #2864DF !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+.mes-navegacao button:hover,
+.btn-agendar-hora:hover {
+    background: #1f55c5 !important;
+}
+
+.dia {
+    background: #ffffff !important;
+    color: #123B60 !important;
+    border: 1px solid rgba(18,59,96,0.16) !important;
+}
+
+.dia:hover {
+    border-color: #2864DF !important;
+}
+
+.dia.hoje {
+    border: 2px solid #2864DF !important;
+}
+
+.dia.selecionado {
+    background: #2864DF !important;
+    color: #ffffff !important;
+}
+
+.dia.ocupado::after {
+    background: #dc2626 !important;
+}
+
+.horario {
+    border-color: rgba(18,59,96,0.14) !important;
+}
+
+.horario-livre {
+    background: #f8fcff !important;
+}
+
+.horario-ocupado {
+    background: #fff2f2 !important;
+    border-color: #f5b8b8 !important;
+}
+
+.agendamento-info small {
+    color: #45627b !important;
+}
+
+.data-selecionada {
+    color: #123B60 !important;
+}
+
+.modal-conteudo {
+    background: #AED6F7 !important;
+    color: #123B60 !important;
+    border: none !important;
+    box-shadow: 0 18px 45px rgba(18,59,96,0.25) !important;
+}
+
+.modal-conteudo input,
+.modal-conteudo select,
+.modal-conteudo textarea {
+    background: #ffffff !important;
+    color: #123B60 !important;
+    border: 1px solid #9bc8ec !important;
+}
+
+.modal-conteudo input::placeholder,
+.modal-conteudo textarea::placeholder {
+    color: #6b8296 !important;
+}
+
+.modal-conteudo .btn-fechar {
+    background: #ffffff !important;
+    color: #123B60 !important;
+    border: 1px solid #9bc8ec !important;
+}
+
+.resumo-procedimento {
+    background: rgba(255,255,255,0.58) !important;
+    color: #123B60 !important;
+}
+
+@media (max-width: 800px) {
+    .agenda-layout > section.card {
+        border-radius: 20px !important;
+    }
+}
+</style>
 
 </head>
 
@@ -555,6 +676,22 @@
                     class="resumo-procedimento"
                 ></div>
 
+
+                <br>
+
+
+                <div class="campo">
+                    <label for="duracao_minutos">
+                        Duração do atendimento *
+                    </label>
+                    <select id="duracao_minutos" required>
+                        <option value="30">30 minutos</option>
+                        <option value="45">45 minutos</option>
+                        <option value="60">1 hora</option>
+                        <option value="90">1 hora e 30 minutos</option>
+                        <option value="120">2 horas</option>
+                    </select>
+                </div>
 
                 <br>
 

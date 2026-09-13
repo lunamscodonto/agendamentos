@@ -33,28 +33,347 @@ input:focus{border-color:#176b42;box-shadow:0 0 0 3px rgba(23,107,66,.12)}
 .vazio{text-align:center;padding:40px;color:#64748b}
 small{color:#64748b}
 @media(max-width:850px){.grid{grid-template-columns:1fr}}
+
+.topo{background:#63abe6;border-bottom:1px solid rgba(255,255,255,.35);padding:12px 20px}
+.topo-usuario{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;color:#173b5f}
+.avatar-usuario{width:48px;height:48px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.dados-usuario{display:flex;flex-direction:column;line-height:1.2}
+.dados-usuario strong{font-size:18px;color:#173b5f}
+.dados-usuario span{font-size:14px;color:#315d83;margin-top:2px}
+.usuario-acoes{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn-editar{background:#2563eb;color:#fff;border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer}
+.btn-editar:hover{opacity:.9}
+.btn-cancelar{background:#64748b;color:#fff}
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal.aberto{display:flex}
+.modal-conteudo{background:#fff;width:min(460px,100%);border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-conteudo h2{margin-bottom:20px}
+.modal-acoes{display:flex;gap:10px;margin-top:20px}
+.modal-acoes button{flex:1}
+select{font-family:inherit}
+
+/* Layout compacto aprovado */
+body{
+    margin:0;
+    background:#f4f8fc;
+    min-height:100vh;
+}
+.topo{
+    background:#63abe6;
+    border-bottom:1px solid rgba(255,255,255,.35);
+    padding:14px 28px;
+}
+.topo-usuario{
+    max-width:1180px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:12px;
+    color:#173b5f;
+}
+.avatar-usuario{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:21px;
+    box-shadow:0 1px 3px rgba(0,0,0,.08);
+}
+.dados-usuario{
+    display:flex;
+    flex-direction:column;
+    line-height:1.2;
+    min-width:150px;
+}
+.dados-usuario strong{
+    font-size:18px;
+    color:#173b5f;
+}
+.dados-usuario span{
+    font-size:14px;
+    color:#315d83;
+    margin-top:3px;
+}
+.container{
+    width:min(1140px, calc(100% - 32px));
+    max-width:none;
+    margin:38px auto;
+}
+.grid{
+    display:grid;
+    grid-template-columns:minmax(390px, 0.9fr) minmax(520px, 1.1fr);
+    gap:24px;
+    align-items:start;
+}
+.card{
+    border-radius:16px;
+    padding:26px;
+    box-shadow:0 8px 24px rgba(30,64,96,.08);
+}
+.card h1{
+    font-size:30px;
+    margin:0 0 16px;
+}
+.card h2{
+    font-size:26px;
+    margin:0 0 20px;
+}
+.campo{
+    margin-bottom:15px;
+}
+.campo input,
+.campo select{
+    min-height:50px;
+    box-sizing:border-box;
+}
+.usuario{
+    padding:13px 0;
+}
+.btn-editar{
+    padding:8px 12px;
+}
+@media(max-width:900px){
+    .grid{grid-template-columns:1fr}
+    .container{margin:24px auto}
+}
+
+
+/* ===== Layout final do módulo Usuários ===== */
+body{
+    margin:0;
+    min-height:100vh;
+    background:#52a6e8;
+}
+
+.topo{
+    min-height:86px;
+    box-sizing:border-box;
+    background:#63abe6;
+    border-bottom:1px solid rgba(255,255,255,.35);
+    padding:14px 40px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.topo-titulo{
+    display:flex;
+    flex-direction:column;
+    line-height:1.15;
+}
+
+.topo-titulo strong{
+    font-size:34px;
+    color:#173b5f;
+}
+
+.topo-titulo span{
+    margin-top:5px;
+    font-size:16px;
+    color:#315d83;
+}
+
+.topo-usuario{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.avatar-usuario{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    box-shadow:0 1px 3px rgba(0,0,0,.10);
+}
+
+.dados-usuario{
+    display:flex;
+    flex-direction:column;
+    line-height:1.2;
+    min-width:145px;
+}
+
+.dados-usuario strong{
+    font-size:18px;
+    color:#173b5f;
+}
+
+.dados-usuario span{
+    margin-top:3px;
+    font-size:14px;
+    color:#315d83;
+}
+
+.container{
+    width:min(1160px, calc(100% - 48px));
+    max-width:none;
+    margin:30px auto;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:390px minmax(520px, 1fr);
+    gap:24px;
+    align-items:start;
+}
+
+.card{
+    background:rgba(194,225,249,.82);
+    border:1px solid rgba(255,255,255,.55);
+    border-radius:16px;
+    padding:22px;
+    box-shadow:0 7px 22px rgba(20,70,110,.10);
+    box-sizing:border-box;
+}
+
+.card h1,
+.card h2{
+    color:#173b5f;
+}
+
+.card h1{
+    font-size:28px;
+    margin:0 0 12px;
+}
+
+.card h2{
+    font-size:27px;
+    margin:0 0 18px;
+}
+
+.card p{
+    margin:0 0 16px;
+    color:#234d70;
+}
+
+.campo{
+    margin-bottom:13px;
+}
+
+.campo label{
+    color:#173b5f;
+    margin-bottom:6px;
+}
+
+.campo input,
+.campo select{
+    min-height:48px;
+    box-sizing:border-box;
+    background:#fff;
+}
+
+.btn-principal{
+    margin-top:3px;
+}
+
+.usuario{
+    padding:12px 0;
+}
+
+.usuario-acoes{
+    flex-shrink:0;
+}
+
+@media(max-width:900px){
+    .topo{
+        padding:14px 20px;
+    }
+
+    .topo-titulo strong{
+        font-size:28px;
+    }
+
+    .container{
+        width:calc(100% - 28px);
+        margin:20px auto;
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:600px){
+    .topo{
+        align-items:flex-start;
+        gap:12px;
+    }
+
+    .topo-usuario{
+        gap:8px;
+    }
+
+    .dados-usuario{
+        min-width:0;
+    }
+
+    .dados-usuario strong{
+        font-size:16px;
+    }
+
+    .dados-usuario span{
+        font-size:12px;
+    }
+
+    .avatar-usuario{
+        width:44px;
+        height:44px;
+    }
+}
+
 </style>
 </head>
 <body>
+<header class="topo">
+    <div class="topo-titulo">
+        <strong>Usuários</strong>
+        <span>Gestão de usuários</span>
+    </div>
+
+    <div class="topo-usuario" id="usuarioLogado">
+        <div class="avatar-usuario">👤</div>
+        <div class="dados-usuario">
+            <strong id="nomeUsuarioLogado">Carregando...</strong>
+            <span>Acesso ao sistema</span>
+        </div>
+    </div>
+</header>
 <main class="container">
-<nav class="menu">
-<a href="dashboard.html">📊 Dashboard</a>
-<a href="agenda.html">📅 Agenda</a>
-<a href="pacientes.html">👤 Pacientes</a>
-<a href="dentistas.html">🦷 Dentistas</a>
-<a href="retornos.html">🔁 Retornos</a>
-<a href="usuarios.html" class="ativo">👥 Usuários</a>
-</nav>
+
 
 <div class="grid">
 <section class="card">
 <h1>👥 Cadastro de usuários</h1>
-<p>Informe somente o nome e o PIN numérico.</p>
+<p>Informe o nome, o e-mail e o PIN numérico.</p>
 
 <form id="formUsuario">
 <div class="campo">
 <label for="nome">Nome *</label>
 <input id="nome" type="text" maxlength="100" required placeholder="Digite o nome do usuário">
+</div>
+
+<div class="campo">
+<label for="email">E-mail *</label>
+<input id="email" type="email" maxlength="150" required placeholder="Digite o e-mail do usuário" autocomplete="email">
+</div>
+
+<div class="campo">
+<label for="perfil">Perfil *</label>
+<select id="perfil" required style="width:100%;padding:14px;border:1px solid #cbd5e1;border-radius:9px;font-size:16px;background:#fff;outline:none">
+    <option value="">Selecione o perfil</option>
+    <option value="administrador">Administrador</option>
+    <option value="dentista">Dentista</option>
+    <option value="recepcao">Recepção</option>
+</select>
 </div>
 
 <div class="campo">
@@ -87,6 +406,44 @@ small{color:#64748b}
 </section>
 </div>
 </main>
-<script src="usuarios.js"></script>
+
+<div class="modal" id="modalEditar" aria-hidden="true">
+<div class="modal-conteudo">
+<h2>✏️ Editar usuário</h2>
+<form id="formEditarUsuario">
+<input type="hidden" id="editarId">
+<div class="campo">
+<label for="editarNome">Nome *</label>
+<input id="editarNome" type="text" maxlength="100" required>
+</div>
+<div class="campo">
+<label for="editarEmail">E-mail</label>
+<input id="editarEmail" type="email" readonly style="background:#f1f5f9">
+</div>
+<div class="campo">
+<label for="editarPerfil">Perfil *</label>
+<select id="editarPerfil" required style="width:100%;padding:14px;border:1px solid #cbd5e1;border-radius:9px;font-size:16px;background:#fff;outline:none">
+<option value="administrador">Administrador</option>
+<option value="dentista">Dentista</option>
+<option value="recepcao">Recepção</option>
+</select>
+</div>
+<div class="campo">
+<label for="editarAtivo">Status *</label>
+<select id="editarAtivo" required style="width:100%;padding:14px;border:1px solid #cbd5e1;border-radius:9px;font-size:16px;background:#fff;outline:none">
+<option value="true">Ativo</option>
+<option value="false">Inativo</option>
+</select>
+</div>
+<div class="modal-acoes">
+<button type="button" class="btn btn-cancelar" id="btnCancelarEdicao">Cancelar</button>
+<button type="submit" class="btn btn-principal" id="btnSalvarEdicao">Salvar alterações</button>
+</div>
+<div id="mensagemEdicao" class="mensagem"></div>
+</form>
+</div>
+</div>
+
+<script src="usuarios.js?v=20260912-user"></script>
 </body>
 </html>
