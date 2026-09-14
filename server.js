@@ -1185,9 +1185,34 @@ if (isNaN(dataAgendamento.getTime())) {
                 );
 
 
-            // A duração do atendimento é a duração escolhida no agendamento.
-            // Nunca usar a duração cadastrada no procedimento como substituta.
-            let duracaoExistente = Number(agendamento.duracao_minutos) || 30;
+            let duracaoExistente = Number(agendamento.duracao_minutos) || 0;
+
+
+            const {
+                data: procedimentoExistente
+            } = await supabase
+                .from("procedimentos")
+                .select("duracao_minutos")
+                .eq(
+                    "id",
+                    agendamento.procedimento_id
+                )
+                .single();
+
+
+            if (
+                !duracaoExistente &&
+                procedimentoExistente &&
+                procedimentoExistente.duracao_minutos
+            ) {
+
+                duracaoExistente =
+                    procedimentoExistente.duracao_minutos;
+            }
+
+            if (!duracaoExistente) {
+                duracaoExistente = 30;
+            }
 
 
             const fimExistente =
@@ -1980,63 +2005,106 @@ app.post("/usuarios", async (req, res) => {
 });
 
 // =====================================================
-// LOGIN COM E-MAIL + PIN
+// LOGIN COM NOME DE USUÁRIO + PIN
+// O e-mail continua sendo usado pelo Supabase Auth internamente.
 // =====================================================
 
 app.post("/auth/login", async (req, res) => {
     try {
-        const email = String(req.body.email || "").trim().toLowerCase();
-        const perfil = String(req.body.perfil || "Usuário").trim();
+        const nomeBusca = String(
+            req.body.usuario || req.body.nomeUsuario || req.body.nome || ""
+        ).trim();
         const pin = String(req.body.pin || "").trim();
 
-        if (!validarEmail(email) || !validarPIN(pin)) {
+        if (!nomeBusca || !validarPIN(pin)) {
             return res.status(400).json({
-                erro: "Informe um e-mail válido e um PIN numérico."
+                erro: "Informe seu nome de usuário e um PIN numérico."
+            });
+        }
+
+        if (!supabaseAdmin) {
+            return res.status(500).json({
+                erro: "O serviço de autenticação do servidor não está configurado."
+            });
+        }
+
+        // Localiza o cadastro pelo nome.
+        // Limitamos a 2 para detectar nomes duplicados sem expor a lista completa.
+        const { data: usuarios, error: consultaError } = await supabaseAdmin
+            .from("usuarios")
+            .select("auth_user_id, nome, email, perfil, ativo, email_confirmado")
+            .ilike("nome", nomeBusca)
+            .limit(2);
+
+        if (consultaError) {
+            console.error("Erro ao consultar usuário para login:", consultaError);
+            return res.status(500).json({
+                erro: "Não foi possível consultar o usuário.",
+                detalhes: consultaError.message
+            });
+        }
+
+        if (!usuarios || usuarios.length === 0) {
+            return res.status(401).json({
+                erro: "Usuário ou PIN inválido."
+            });
+        }
+
+        if (usuarios.length > 1) {
+            return res.status(409).json({
+                erro: "Existem usuários com o mesmo nome. Diferencie os nomes cadastrados antes de entrar."
+            });
+        }
+
+        const usuarioCadastro = usuarios[0];
+
+        if (usuarioCadastro.ativo === false) {
+            return res.status(403).json({
+                erro: "Este usuário está inativo."
+            });
+        }
+
+        if (!usuarioCadastro.email || !validarEmail(usuarioCadastro.email)) {
+            return res.status(500).json({
+                erro: "Este usuário não possui um e-mail válido cadastrado para autenticação."
             });
         }
 
         const { data, error } = await supabase.auth.signInWithPassword({
-            email,
+            email: usuarioCadastro.email,
             password: pin
         });
 
         if (error) {
+            console.error("Falha no Supabase Auth:", error.message);
             return res.status(401).json({
-                erro: error.message
+                erro: "Usuário ou PIN inválido."
             });
         }
 
-        let usuario = null;
-
-        if (supabaseAdmin && data.user?.id) {
-            const { data: perfil } = await supabaseAdmin
-                .from("usuarios")
-                .select("auth_user_id, nome, email, perfil, ativo, email_confirmado")
-                .eq("auth_user_id", data.user.id)
-                .maybeSingle();
-
-            usuario = perfil;
-
-            if (perfil && data.user.email_confirmed_at && !perfil.email_confirmado) {
-                await supabaseAdmin
-                    .from("usuarios")
-                    .update({
-                        email_confirmado: true,
-                        atualizado_em: new Date().toISOString()
-                    })
-                    .eq("auth_user_id", data.user.id);
-
-                usuario.email_confirmado = true;
-            }
-
-            if (perfil && perfil.ativo === false) {
-                return res.status(403).json({
-                    erro: "Este usuário está inativo."
-                });
-            }
+        if (data.user?.id && usuarioCadastro.auth_user_id && data.user.id !== usuarioCadastro.auth_user_id) {
+            console.error("Inconsistência entre usuarios.auth_user_id e Supabase Auth.");
+            return res.status(500).json({
+                erro: "O cadastro do usuário está inconsistente com a autenticação."
+            });
         }
 
-        res.json({
+        const usuario = {
+            ...usuarioCadastro,
+            email_confirmado: Boolean(data.user?.email_confirmed_at)
+        };
+
+        if (data.user?.email_confirmed_at && !usuarioCadastro.email_confirmado) {
+            await supabaseAdmin
+                .from("usuarios")
+                .update({
+                    email_confirmado: true,
+                    atualizado_em: new Date().toISOString()
+                })
+                .eq("auth_user_id", usuarioCadastro.auth_user_id);
+        }
+
+        return res.json({
             mensagem: "Login realizado com sucesso!",
             usuario,
             session: data.session
@@ -2044,7 +2112,7 @@ app.post("/auth/login", async (req, res) => {
 
     } catch (erro) {
         console.error("Erro no login:", erro);
-        res.status(500).json({
+        return res.status(500).json({
             erro: "Erro interno do servidor."
         });
     }
