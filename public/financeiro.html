@@ -42,7 +42,7 @@ header h1{margin:0;font-size:25px}
 header p{margin:5px 0 0;opacity:.88}
 .container{max-width:1250px;margin:0 auto;padding:22px}
 .toolbar,.form-card,.table-card,.details-card{
-    background:#55A6EF;
+    background:#D3EFF1 !important;
     border-radius:18px;
     box-shadow:var(--sombra);
 }
@@ -71,7 +71,7 @@ button{
     display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px
 }
 .card{
-    background:#55A6EF;border-radius:16px;padding:18px;box-shadow:var(--sombra)
+    background:#D3EFF1 !important;border-radius:16px;padding:18px;box-shadow:var(--sombra)
 }
 .card .label{font-size:13px;color:#000000}
 .card .value{font-size:25px;font-weight:800;margin-top:7px}
@@ -104,7 +104,7 @@ td.money{font-weight:700;white-space:nowrap}
     display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:15px 0
 }
 .detail{
-    background:#55A6EF;border-radius:12px;padding:14px
+    background:#D3EFF1 !important;border-radius:12px;padding:14px
 }
 .detail small{display:block;color:#000000;margin-bottom:5px}
 .detail strong{font-size:18px}
@@ -138,6 +138,24 @@ td.money{font-weight:700;white-space:nowrap}
     .header-inner{align-items:flex-start;flex-direction:column}
 }
 </style>
+
+<style id="msc-cor-cards-financeiro">
+.toolbar,
+.form-card,
+.table-card,
+.details-card,
+.card,
+.detail {
+    background-color: #D3EFF1 !important;
+}
+input,
+select,
+textarea,
+.modal-box {
+    background-color: #fff !important;
+}
+</style>
+
 </head>
 <body>
 

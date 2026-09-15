@@ -4,8 +4,8 @@
 :root{
     --fundo:#55a6ef;
     --fundo-secundario:#4899e5;
-    --lateral:#0d3556;
-    --lateral-2:#0a2d4b;
+    --lateral:#D3EFF1;
+    --lateral-2:#BFE4E7;
     --branco:#ffffff;
     --texto:#173b5d;
     --suave:#d7eaff;
@@ -23,9 +23,13 @@ html,body{
 
 body{
     min-height:100vh;
-    background:var(--fundo);
+    background:
+        linear-gradient(90deg,rgba(238,249,251,.97) 0%,rgba(246,252,253,.94) 52%,rgba(229,246,248,.80) 100%),
+        url("fundo-clinica.jpg") right center / 48% 100% no-repeat,
+        linear-gradient(135deg,#eaf8fb 0%,#f7fcfd 55%,#dff4f5 100%);
     color:var(--texto);
     overflow-x:hidden;
+    position:relative;
 }
 
 .app{
@@ -43,7 +47,7 @@ body{
     width:310px;
     height:100vh;
     background:var(--lateral);
-    color:#fff;
+    color:#123B60;
     display:flex;
     flex-direction:column;
     border-right:1px solid rgba(255,255,255,.2);
@@ -70,13 +74,13 @@ body{
     margin:0;
     font-size:30px;
     line-height:1.05;
-    color:#fff;
+    color:#123B60;
 }
 
 .marca span{
     display:block;
     margin-top:5px;
-    color:#fff;
+    color:#123B60;
     font-size:18px;
     line-height:1.15;
 }
@@ -102,7 +106,7 @@ body{
 
 .menu-titulo{
     margin:18px 10px 8px;
-    color:#a9d5f7;
+    color:#2864DF;
     font-size:14px;
     font-weight:700;
     letter-spacing:.3px;
@@ -117,7 +121,7 @@ body{
     border:0;
     border-radius:15px;
     background:transparent;
-    color:#fff;
+    color:#123B60;
     text-align:left;
     font-size:18px;
     font-weight:500;
@@ -144,7 +148,7 @@ body{
 }
 
 .menu-item.sair{
-    color:#fff;
+    color:#123B60;
 }
 
 /* ===== ÁREA PRINCIPAL ===== */
@@ -374,4 +378,83 @@ body{
     .boas-vindas{
         align-items:flex-start;
     }
+}
+
+
+/* ===== LOGO MSC ODONTO - MODELO APROVADO ===== */
+.marca{
+    flex:0 0 162px;
+    height:162px;
+    min-height:162px;
+    padding:0;
+    margin:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0;
+    overflow:hidden;
+    border-bottom:1px solid rgba(255,255,255,.18);
+    background:#D3EFF1;
+}
+
+.logo-marca{
+    display:block;
+    width:285px;
+    height:162px;
+    max-width:100%;
+    object-fit:contain;
+    object-position:center;
+    flex:0 0 auto;
+}
+
+@media(max-width:900px){
+    .marca{
+        flex-basis:162px;
+        height:162px;
+        min-height:162px;
+    }
+    .logo-marca{
+        width:285px;
+        height:162px;
+    }
+}
+
+
+/* ===== TEMA MSC ODONTO - FUNDO GLOBAL ===== */
+body::before{
+    content:"";
+    position:fixed;
+    left:-180px;
+    bottom:-260px;
+    width:760px;
+    height:540px;
+    border-radius:58% 42% 0 0;
+    background:linear-gradient(145deg,rgba(19,184,178,.22),rgba(44,120,173,.08));
+    pointer-events:none;
+    z-index:0;
+}
+body::after{
+    content:"";
+    position:fixed;
+    right:0;
+    top:0;
+    width:42%;
+    height:100%;
+    background:linear-gradient(90deg,rgba(247,252,253,.86),rgba(247,252,253,.05));
+    pointer-events:none;
+    z-index:0;
+}
+.app,.overlay{
+    position:relative;
+    z-index:1;
+}
+.principal{
+    background:transparent;
+}
+.topbar{
+    background:rgba(255,255,255,.48);
+    backdrop-filter:blur(8px);
+}
+.conteudo{
+    background:transparent;
 }

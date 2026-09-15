@@ -6,132 +6,155 @@
 <title>Login - Clínica Odontológica</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
 
-* { box-sizing: border-box; }
+*{box-sizing:border-box}
+:root{--navy:#12496d;--blue:#1b6796;--teal:#16b9b1;--teal2:#26d1c7;--green:#10a66c;--ink:#164c70}
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
-    padding: 20px;
-    background: #53a4f5;
-    font-family: "Roboto Slab", Georgia, serif;
-    color: #ffffff;
+body{
+ margin:0;min-height:100vh;padding:28px;
+ font-family:"Roboto Slab",Georgia,serif;color:var(--ink);
+ background:#edf8fa;overflow-x:hidden;position:relative;
+}
+body:before{
+ content:"";position:fixed;inset:0;z-index:-3;
+ background:linear-gradient(90deg,#eaf8fb 0%,#f8fcfd 47%,rgba(248,252,253,.72) 66%,rgba(231,247,249,.2) 100%);
+}
+body:after{
+ content:"";position:fixed;z-index:-2;right:0;top:0;width:45%;height:100%;
+ background-image:linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.10)),url("fundo-clinica.jpg");
+ background-size:cover;background-position:center;
+ opacity:.92;
 }
 
-.card {
-    width: min(750px, 50%);
-    background: #1d3b57;
-    padding: 60px;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,.18);
-    box-shadow: 0 12px 32px rgba(13,42,70,.28);
+.cenario{
+ position:fixed;left:0;bottom:0;width:52%;height:34%;
+ background:linear-gradient(145deg,rgba(20,184,177,.95),rgba(20,184,177,.58));
+ clip-path:ellipse(72% 72% at 0% 100%);
+ z-index:-1;
+}
+.cenario:after{
+ content:"";position:absolute;left:0;bottom:0;width:70%;height:55%;
+ background:rgba(16,82,121,.16);
+ border-radius:0 100% 0 0;
 }
 
-h1 {
-    margin: 0 0 14px;
-    color: #ffffff;
-    font-size: clamp(30px, 4vw, 42px);
+.marca-lateral{
+ position:fixed;left:4.2%;top:4.5%;max-width:380px;color:var(--navy);
 }
-
-.card > p {
-    margin: 0 0 26px;
-    color: #e7f1fb;
-    font-size: 18px;
+.marca-lateral .mini{
+ font-family:Montserrat,Arial,sans-serif;font-size:13px;letter-spacing:4px;text-transform:uppercase;
 }
-
-.campo { margin-bottom: 20px; }
-
-label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 8px;
-    font-size: 18px;
-    color: #ffffff;
+.marca-lateral h2{
+ margin:28px 0 10px;font-size:39px;line-height:1.03;
 }
-
-input {
-    width: 100%;
-    padding: 16px;
-    border: 1px solid #8db5d6;
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 17px;
-    color: #2d4154;
-    background: #ffffff;
-    outline: none;
+.marca-lateral h2 strong{color:var(--teal)}
+.marca-lateral p{
+ margin:0;font-family:Montserrat,Arial,sans-serif;font-size:13px;letter-spacing:3px;line-height:1.65;
 }
+.marca-lateral .linha{width:56px;height:3px;background:var(--teal);margin-top:20px;border-radius:5px}
 
-input:focus {
-    border-color: #53a4f5;
-    box-shadow: 0 0 0 3px rgba(83,164,245,.28);
+.beneficios{
+ margin-top:34px;display:grid;gap:16px;
+ font-family:Montserrat,Arial,sans-serif;font-size:14px;
 }
-
-button {
-    width: 100%;
-    border: 0;
-    border-radius: 10px;
-    padding: 16px;
-    background: #176b42;
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 18px;
-    font-weight: 700;
-    cursor: pointer;
+.beneficio{display:flex;align-items:center;gap:12px}
+.icone{
+ width:39px;height:39px;border-radius:50%;display:grid;place-items:center;
+ color:#0aa9a4;background:rgba(210,242,243,.92);font-size:20px;font-weight:700;
 }
+.beneficio span:last-child{line-height:1.25}
 
-button:disabled {
-    opacity: .6;
-    cursor: not-allowed;
+.card{
+ width:min(620px,calc(100vw - 56px));
+ margin:3.5vh auto 0;
+ margin-left:31%;
+ padding:32px 52px 28px;
+ background:rgba(255,255,255,.94);
+ border:1px solid rgba(255,255,255,.9);
+ border-radius:25px;
+ box-shadow:0 20px 55px rgba(18,73,109,.18);
+ backdrop-filter:blur(8px);
+ position:relative;
 }
-
-.msg {
-    display: none;
-    margin-top: 16px;
-    padding: 13px;
-    border-radius: 10px;
-    font-weight: 600;
+.card:before{
+ content:"";position:absolute;left:14%;right:14%;top:0;height:4px;
+ border-radius:0 0 10px 10px;background:linear-gradient(90deg,var(--blue),var(--teal));
 }
-
-.erro {
-    background: #fee2e2;
-    color: #991b1b;
+.logo-login{
+ display:block;width:min(100%,330px);height:auto;margin:0 auto 17px;object-fit:contain;
 }
-
-.sucesso {
-    background: #dcfce7;
-    color: #166534;
+.card>p{
+ margin:0 0 20px;text-align:center;color:#45677e;font-size:15px;
 }
-
-.links {
-    text-align: center;
-    margin-top: 22px;
+.campo{margin-bottom:15px}
+label{display:block;margin-bottom:6px;font-size:15px;font-weight:700;color:var(--navy)}
+input{
+ width:100%;padding:13px 16px;border:1px solid #cfdee7;border-radius:11px;
+ font-family:inherit;font-size:15px;color:#294f66;background:#fff;outline:none;
 }
-
-.links a {
-    color: #ffffff;
-    font-weight: 700;
-    text-decoration: none;
-    display: block;
-    margin: 12px 0;
+input:focus{border-color:#2996bf;box-shadow:0 0 0 3px rgba(41,150,191,.13)}
+button{
+ width:100%;border:0;border-radius:11px;padding:13px;margin-top:2px;
+ background:linear-gradient(90deg,#10a66c,#13b779);color:#fff;
+ font-family:inherit;font-size:17px;font-weight:700;cursor:pointer;
+ box-shadow:0 8px 18px rgba(16,166,108,.18);
 }
-
-.links a:hover {
-    text-decoration: underline;
+button:disabled{opacity:.6;cursor:not-allowed}
+.msg{display:none;margin-top:13px;padding:12px;border-radius:10px;font-weight:600}
+.erro{background:#fee2e2;color:#991b1b}.sucesso{background:#dcfce7;color:#166534}
+.links{text-align:center;margin-top:16px}
+.links a{
+ color:#145f96;font-weight:700;text-decoration:none;display:block;margin:9px 0;font-size:14px;
 }
+.links a:hover{color:#08a59f;text-decoration:underline}
 
-@media (max-width: 600px) {
-    body { padding: 14px; }
-    .card { padding: 28px 22px; }
+.rodape{
+ position:fixed;left:34%;bottom:25px;font-family:Montserrat,Arial,sans-serif;
+ font-size:10px;letter-spacing:2.5px;color:#456b7d;
+}
+.assinatura{
+ position:fixed;right:3.5%;bottom:30px;color:#15557c;
+ font-family:Montserrat,Arial,sans-serif;font-size:11px;letter-spacing:2px;text-align:right;
+}
+.assinatura strong{display:block;font-size:16px;letter-spacing:1px;color:var(--teal)}
+
+@media(max-width:1050px){
+ body{padding:18px}
+ .marca-lateral{position:relative;left:auto;top:auto;width:100%;max-width:620px;margin:0 auto 18px}
+ .marca-lateral h2,.marca-lateral p,.marca-lateral .linha,.beneficios{display:none}
+ .card{margin:18px auto 70px}
+ body:after{width:100%;opacity:.12}
+ .cenario{width:100%;height:28%;opacity:.5}
+ .rodape{left:50%;transform:translateX(-50%);white-space:nowrap}
+ .assinatura{display:none}
+}
+@media(max-width:600px){
+ body{padding:10px}
+ .card{width:calc(100% - 8px);padding:27px 21px 23px;border-radius:20px}
+ .logo-login{width:min(100%,290px);margin-bottom:15px}
+ .card>p{font-size:14px}
+ .rodape{font-size:8px;letter-spacing:1.5px;bottom:10px}
 }
 </style>
 </head>
 
 <body>
+<div class="cenario" aria-hidden="true"></div>
+<div class="marca-lateral" aria-hidden="true">
+  <div class="mini">Clínica Odontológica</div>
+  <h2>Saúde para hoje.<br><strong>Sorrisos para sempre.</strong></h2>
+  <p>CUIDANDO DE VOCÊ<br>E EM CADA DETALHE</p>
+  <div class="linha"></div>
+  <div class="beneficios">
+    <div class="beneficio"><span class="icone">♡</span><span>Atendimento<br>humanizado</span></div>
+    <div class="beneficio"><span class="icone">✓</span><span>Tecnologia<br>e segurança</span></div>
+    <div class="beneficio"><span class="icone">⌁</span><span>Profissionais<br>especializados</span></div>
+    <div class="beneficio"><span class="icone">♡</span><span>Mais qualidade<br>de vida</span></div>
+  </div>
+</div>
 <section class="card">
-    <h1>🔐 Entrar no sistema</h1>
+    <img class="logo-login" src="logo-msc-odonto.png" alt="MSC Odonto - Clínica Odontológica">
     <p>Informe seu nome de usuário e PIN numérico.</p>
 
     <form id="formLogin">
@@ -154,7 +177,8 @@ button:disabled {
         <a href="usuarios.html">Voltar para usuários</a>
     </div>
 </section>
-
+<div class="rodape">PREVENÇÃO &nbsp; • &nbsp; ESTÉTICA &nbsp; • &nbsp; TRATAMENTO &nbsp; • &nbsp; BEM-ESTAR</div>
+<div class="assinatura"><strong>MSC ODONTO</strong>MAIS SORRISOS PARA UM FUTURO MELHOR</div>
 <script src="login.js?v=20260912-nome-v2"></script>
 </body>
 </html>

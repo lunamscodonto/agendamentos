@@ -352,7 +352,45 @@
         button:disabled{opacity:.65;cursor:not-allowed}
         @media(max-width:800px){.lista-pacientes{grid-template-columns:1fr}.consulta-barra{grid-template-columns:1fr}.edicao-grid{grid-template-columns:1fr}.edicao-grid .completo{grid-column:auto}.resumo-historico{grid-template-columns:repeat(2,1fr)}}
 
-    </style>
+    
+        /* EXPORTAÇÃO */
+        .acoes-exportacao{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+        .btn-exportar{
+            border:0;
+            border-radius:11px;
+            padding:11px 15px;
+            font:inherit;
+            font-size:13px;
+            font-weight:800;
+            cursor:pointer;
+            transition:.2s ease;
+            box-shadow:0 5px 14px rgba(29,76,111,.10);
+        }
+        .btn-exportar:hover{transform:translateY(-1px);filter:brightness(.98)}
+        .btn-excel{background:#16845b;color:#fff}
+        .btn-pdf{background:#c43c3c;color:#fff}
+        .btn-exportar:disabled{opacity:.6;cursor:wait;transform:none}
+        .export-info{
+            display:none;
+            margin-top:12px;
+            padding:10px 13px;
+            border-radius:10px;
+            background:#edf7ff;
+            color:#245273;
+            font-size:13px;
+            border:1px solid #d7e7f4;
+        }
+        @media(max-width:680px){
+            .cabecalho-pagina{align-items:stretch;flex-direction:column}
+            .acoes-exportacao{width:100%}
+            .btn-exportar{flex:1}
+        }
+</style>
 
 <style id="tema-azul-cadastro-pacientes">
     /* Card principal do cadastro */
@@ -416,6 +454,58 @@
     }
 </style>
 
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+
+
+<style id="tema-cards-pacientes-d3eff1">
+    /* Mesma cor aprovada no módulo Agenda */
+    main .card,
+    main .card .card-topo,
+    main .card form,
+    .consulta-card,
+    .consulta-card .card-topo,
+    .paciente-card {
+        background: #D3EFF1 !important;
+    }
+
+    .consulta-card .card-topo,
+    .card-topo {
+        background-image: none !important;
+    }
+
+    .paciente-card {
+        border-color: rgba(18,63,97,.14) !important;
+        box-shadow: 0 8px 22px rgba(29,76,111,.08) !important;
+    }
+
+    .paciente-card .avatar-paciente,
+    .consulta-card .avatar-paciente {
+        background: rgba(255,255,255,.55) !important;
+    }
+
+    /* Mantém os campos de preenchimento claros para facilitar a leitura */
+    main .card input,
+    main .card textarea {
+        background: rgba(255,255,255,.92) !important;
+        color: #17324d !important;
+        border-color: rgba(18,63,97,.16) !important;
+    }
+
+    main .card input::placeholder,
+    main .card textarea::placeholder {
+        color: #718796 !important;
+    }
+
+    main .card input:focus,
+    main .card textarea:focus {
+        background: #fff !important;
+        border-color: #55a9e9 !important;
+        box-shadow: 0 0 0 4px rgba(85,169,233,.13) !important;
+    }
+</style>
+
 </head>
 
 <body>
@@ -444,7 +534,13 @@
                     <h2>➕ Novo paciente</h2>
                     <p>Preencha os dados abaixo para realizar o cadastro.</p>
                 </div>
+
+                <div class="acoes-exportacao">
+                    <button type="button" class="btn-exportar btn-excel" id="btnExportarExcel">📊 Excel (.xlsx)</button>
+                    <button type="button" class="btn-exportar btn-pdf" id="btnExportarPDF">📄 PDF</button>
+                </div>
             </div>
+            <div id="exportInfo" class="export-info"></div>
 
             <section class="card">
 
@@ -992,6 +1088,125 @@
         $("modalHistorico").classList.remove("aberto");
     }
 
+    // =====================================================
+    // EXPORTAÇÃO DE PACIENTES
+    // =====================================================
+    async function obterPacientesParaExportacao() {
+        const resposta = await fetch("/pacientes");
+        const resultado = await resposta.json();
+        if (!resposta.ok) {
+            throw new Error(resultado.erro || "Não foi possível carregar os pacientes.");
+        }
+        const lista = Array.isArray(resultado.pacientes) ? resultado.pacientes : [];
+        if (!lista.length) {
+            throw new Error("Não há pacientes cadastrados para exportar.");
+        }
+        return lista;
+    }
+
+    function dadosExportacao(lista) {
+        return lista.map(p => ({
+            "Nome completo": p.nome || "",
+            "CPF": p.cpf || "",
+            "Telefone": p.telefone || "",
+            "E-mail": p.email || "",
+            "Data de nascimento": formatarData(p.data_nascimento),
+            "Endereço": p.endereco || "",
+            "Observações": p.observacoes || ""
+        }));
+    }
+
+    function mostrarExportInfo(texto, erro = false) {
+        const area = $("exportInfo");
+        area.textContent = texto;
+        area.style.display = "block";
+        area.style.background = erro ? "#fff1f1" : "#edf7ff";
+        area.style.color = erro ? "#9f2f2f" : "#245273";
+        clearTimeout(window.__exportInfoTimer);
+        window.__exportInfoTimer = setTimeout(() => {
+            area.style.display = "none";
+        }, 4500);
+    }
+
+    async function exportarExcel() {
+        const botao = $("btnExportarExcel");
+        try {
+            botao.disabled = true;
+            botao.textContent = "⏳ Gerando...";
+            const lista = await obterPacientesParaExportacao();
+            const dados = dadosExportacao(lista);
+            const planilha = XLSX.utils.json_to_sheet(dados);
+            planilha["!cols"] = [
+                {wch: 32}, {wch: 20}, {wch: 18}, {wch: 32},
+                {wch: 20}, {wch: 45}, {wch: 45}
+            ];
+            const pasta = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(pasta, planilha, "Pacientes");
+            XLSX.writeFile(pasta, `pacientes_${new Date().toISOString().slice(0,10)}.xlsx`);
+            mostrarExportInfo(`${lista.length} paciente(s) exportado(s) para Excel com sucesso.`);
+        } catch (erro) {
+            console.error("Erro ao exportar Excel:", erro);
+            mostrarExportInfo(erro.message, true);
+        } finally {
+            botao.disabled = false;
+            botao.textContent = "📊 Excel (.xlsx)";
+        }
+    }
+
+    async function exportarPDF() {
+        const botao = $("btnExportarPDF");
+        try {
+            botao.disabled = true;
+            botao.textContent = "⏳ Gerando...";
+            const lista = await obterPacientesParaExportacao();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({orientation: "landscape", unit: "mm", format: "a4"});
+
+            doc.setFontSize(16);
+            doc.text("MSC - Odonto", 14, 15);
+            doc.setFontSize(12);
+            doc.text("Relatório de pacientes cadastrados", 14, 22);
+            doc.setFontSize(9);
+            doc.text(`Gerado em ${new Date().toLocaleString("pt-BR")}`, 14, 28);
+
+            const linhas = lista.map(p => [
+                p.nome || "",
+                p.cpf || "",
+                p.telefone || "",
+                p.email || "",
+                formatarData(p.data_nascimento),
+                p.endereco || ""
+            ]);
+
+            doc.autoTable({
+                startY: 34,
+                head: [["Nome", "CPF", "Telefone", "E-mail", "Nascimento", "Endereço"]],
+                body: linhas,
+                theme: "grid",
+                styles: {fontSize: 7, cellPadding: 2, overflow: "linebreak"},
+                headStyles: {fontSize: 7, fontStyle: "bold"},
+                columnStyles: {
+                    0: {cellWidth: 52},
+                    1: {cellWidth: 32},
+                    2: {cellWidth: 32},
+                    3: {cellWidth: 55},
+                    4: {cellWidth: 27},
+                    5: {cellWidth: 72}
+                },
+                margin: {left: 10, right: 10}
+            });
+
+            doc.save(`pacientes_${new Date().toISOString().slice(0,10)}.pdf`);
+            mostrarExportInfo(`${lista.length} paciente(s) exportado(s) para PDF com sucesso.`);
+        } catch (erro) {
+            console.error("Erro ao exportar PDF:", erro);
+            mostrarExportInfo(erro.message, true);
+        } finally {
+            botao.disabled = false;
+            botao.textContent = "📄 PDF";
+        }
+    }
+
     formPaciente.addEventListener("submit", async (evento) => {
         evento.preventDefault();
 
@@ -1041,6 +1256,9 @@
     });
 
     btnLimpar.addEventListener("click", () => formPaciente.reset());
+
+    $("btnExportarExcel").addEventListener("click", exportarExcel);
+    $("btnExportarPDF").addEventListener("click", exportarPDF);
 
     adicionarAreaConsulta();
 

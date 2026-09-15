@@ -5,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Principal | Clínica Odontológica</title>
     <link rel="stylesheet" href="painel.css">
+
+<style id="msc-cor-painel">
+/* Cor padrão dos cartões/conteúdos do painel */
+.boas-vindas,
+.atalho {
+    background-color: #D3EFF1 !important;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
     <aside class="sidebar" id="sidebar">
         <div class="marca">
-            <div class="logo">🦷</div>
-            <div>
-                <h2>Clínica</h2>
-                <span>Gestão e Agendamento</span>
-            </div>
+            <img class="logo-marca" src="logo-msc-odonto.png" alt="MSC Odonto - Clínica Odontológica">
         </div>
 
         <nav class="menu">
@@ -25,7 +30,6 @@
             <button class="menu-item" data-titulo="Pacientes" data-url="index.html">👤 Pacientes</button>
             <button class="menu-item" data-titulo="Agenda" data-url="agenda.html">📅 Agenda</button>
             <button class="menu-item" data-titulo="Profissionais" data-url="dentistas.html">🦷 Profissionais</button>
-            <button class="menu-item" data-titulo="Retornos" data-url="retornos.html">🔄 Retornos</button>
             <button class="menu-item" data-titulo="Procedimentos" data-url="procedimentos.html">🦷 Procedimentos</button>
 
             <div class="menu-titulo">CONTROLE</div>
@@ -65,7 +69,7 @@
         </header>
 
         <section class="conteudo" id="conteudo">
-            <div class="boas-vindas">
+            <div class="boas-vindas tema-boas-vindas">
                 <div class="icone-principal">🦷</div>
                 <div>
                     <h2>Bem-vindo ao Sistema</h2>
@@ -82,10 +86,6 @@
                     📅<strong>Agenda</strong><small>Agendamentos</small>
                 </button>
 
-                <button class="atalho" data-url="retornos.html" data-titulo="Retornos">
-                    🔄<strong>Retornos</strong><small>Acompanhe retornos</small>
-                </button>
-
                 <button class="atalho" data-url="dashboard.html" data-titulo="Dashboard">
                     📊<strong>Dashboard</strong><small>Indicadores</small>
                 </button>
@@ -95,6 +95,72 @@
 </div>
 
 <div class="overlay" id="overlay"></div>
+
+
+<script>
+(function(){
+  function aplicarTemaModulo(iframe){
+    try{
+      const doc = iframe.contentDocument;
+      if(!doc || !doc.head) return;
+
+      if(doc.getElementById("msc-tema-global")) return;
+
+      const style = doc.createElement("style");
+      style.id = "msc-tema-global";
+      style.textContent = `
+        html, body {
+          background: transparent !important;
+          background-color: transparent !important;
+        }
+        body {
+          min-height: 100vh;
+          position: relative;
+        }
+        body::before {
+          content: "";
+          position: fixed;
+          inset: 0;
+          z-index: -10;
+          pointer-events: none;
+          background:
+            linear-gradient(90deg,rgba(238,249,251,.96) 0%,rgba(246,252,253,.91) 52%,rgba(229,246,248,.70) 100%),
+            url("fundo-clinica.jpg") right center / 48% 100% no-repeat,
+            linear-gradient(135deg,#eaf8fb 0%,#f7fcfd 55%,#dff4f5 100%);
+        }
+        body::after {
+          content: "";
+          position: fixed;
+          left: -180px;
+          bottom: -260px;
+          width: 760px;
+          height: 540px;
+          border-radius: 58% 42% 0 0;
+          background: linear-gradient(145deg,rgba(19,184,178,.18),rgba(44,120,173,.06));
+          pointer-events: none;
+          z-index: -9;
+        }
+      `;
+      doc.head.appendChild(style);
+    }catch(e){
+      console.warn("Tema MSC Odonto não aplicado ao módulo:", e);
+    }
+  }
+
+  function observar(){
+    document.querySelectorAll(".modulo-frame").forEach(function(iframe){
+      iframe.addEventListener("load", function(){ aplicarTemaModulo(iframe); });
+      if(iframe.contentDocument && iframe.contentDocument.readyState === "complete"){
+        aplicarTemaModulo(iframe);
+      }
+    });
+  }
+
+  new MutationObserver(observar).observe(document.body,{childList:true,subtree:true});
+  window.addEventListener("load", observar);
+  observar();
+})();
+</script>
 
 <script src="auth-guard.js"></script>
 <script src="painel.js"></script>
